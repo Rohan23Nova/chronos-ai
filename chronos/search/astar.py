@@ -2,7 +2,7 @@ import heapq
 
 from chronos.planning.problem import is_goal
 from chronos.planning.successor import generate_successors
-
+from chronos.planning.heuristic import heuristic
 
 def astar(initial_state, available_end):
 
@@ -13,12 +13,13 @@ def astar(initial_state, available_end):
         frontier,
         (0, counter, initial_state)
     )
-
+    expanded = 0
     while frontier:
 
         _, _, current = heapq.heappop(frontier)
-
+        expanded += 1
         if is_goal(current):
+            print("States expanded:", expanded)
             return current
 
         for successor in generate_successors(
@@ -29,7 +30,7 @@ def astar(initial_state, available_end):
             counter += 1
 
             g = successor.cost
-            h = 0
+            h = heuristic(successor, available_end)
             f = g + h
 
             heapq.heappush(
