@@ -8,19 +8,21 @@ def astar(initial_state, available_end):
 
     frontier = []
     counter = 0
+    expanded = 0
 
     heapq.heappush(
         frontier,
         (0, counter, initial_state)
     )
-    expanded = 0
+
     while frontier:
 
         _, _, current = heapq.heappop(frontier)
+
         expanded += 1
+
         if is_goal(current):
-            print("States expanded:", expanded)
-            return current
+            return current, expanded
 
         for successor in generate_successors(
             current,
@@ -38,4 +40,4 @@ def astar(initial_state, available_end):
                 (f, counter, successor)
             )
 
-    return None
+    return None, expanded

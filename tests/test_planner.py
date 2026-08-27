@@ -22,6 +22,10 @@ initial_state = State(
     cost=0
 )
 
-result = astar(initial_state, 24)
+result, expanded = astar(initial_state, 24)
 
-print(result)
+print("Final schedule:")
+print(result.schedule)
+
+print("Final cost:", result.cost)
+print("States expanded:", expanded)
