@@ -1,9 +1,11 @@
 import heapq
 
-from chronos.planning.heuristic import heuristic
 
-
-def astar(problem, available_end=None):
+def ucs(problem, available_end=None):
+    """
+    Uniform Cost Search (UCS) for PlanningProblem.
+    Expands nodes in increasing order of accumulated path cost g(n).
+    """
     if available_end is not None:
         from chronos.planning.problem import PlanningProblem
         problem = PlanningProblem(
@@ -18,24 +20,23 @@ def astar(problem, available_end=None):
     best_cost = {}
 
     initial_state = problem.initial_state
-    available_end = problem.available_end
 
+    # Track best-known cost to reach each logical state
     initial_key = initial_state.key()
     best_cost[initial_key] = initial_state.cost
 
-    initial_h = heuristic(initial_state, available_end)
-
+    # Heap entry: (g, counter, state)
     heapq.heappush(
         frontier,
-        (initial_h, counter, initial_state)
+        (initial_state.cost, counter, initial_state)
     )
 
     while frontier:
-
-        f, _, current = heapq.heappop(frontier)
+        g, _, current = heapq.heappop(frontier)
 
         current_key = current.key()
 
+        # Skip stale frontier entries if a strictly cheaper path was already expanded
         if current.cost > best_cost.get(current_key, float("inf")):
             continue
 
@@ -46,18 +47,15 @@ def astar(problem, available_end=None):
 
         for successor in problem.get_successors(current):
             succ_key = successor.key()
-            g = successor.cost
+            succ_cost = successor.cost
 
-            if succ_key not in best_cost or g < best_cost[succ_key]:
-                best_cost[succ_key] = g
+            # Only consider successor if it improves the cost to reach this state
+            if succ_key not in best_cost or succ_cost < best_cost[succ_key]:
+                best_cost[succ_key] = succ_cost
                 counter += 1
-
-                h = heuristic(successor, available_end)
-                f = g + h
-
                 heapq.heappush(
                     frontier,
-                    (f, counter, successor)
+                    (succ_cost, counter, successor)
                 )
 
     return None, expanded

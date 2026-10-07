@@ -45,23 +45,35 @@ Chronos AI is being developed around:
 - [x] Schedule entry model
 - [x] State representation
 - [x] Successor generation
+- [x] Hard constraint handling
+- [x] PlanningProblem abstraction
+- [x] Uniform Cost Search (UCS)
+- [x] A* planning engine
+- [x] Domain-specific heuristic
+- [x] Search comparison and state expansion measurement
 
 ### In Progress
 
-- [ ] Cost model
-- [ ] A* planning engine
+- [ ] Explainable scheduling decisions
+- [ ] Evaluation benchmarks
 
 ### Planned
 
-- [ ] Scheduling heuristic
-- [ ] Constraint handling
 - [ ] Rule-based knowledge system
-- [ ] Planning layer
-- [ ] Explainable scheduling decisions
+- [ ] Planning layer extensions
 - [ ] Feedback-based adaptation
 - [ ] SQLite persistence
 - [ ] Streamlit interface
 - [ ] Experiments and evaluation
+
+## Search & Evaluation
+
+Chronos supports classical state-space search strategies operating over the `PlanningProblem` abstraction:
+
+- **Uniform Cost Search (UCS)**: Explores state space based on accumulated path cost $g(n)$, prioritizing lower delay and priority-weighted waiting penalties.
+- **A* Search**: Guides search using evaluation function $f(n) = g(n) + h(n)$, combining accumulated path cost with domain-specific heuristic estimates.
+- **Domain-Specific Heuristic**: Evaluates workload pressure against available window time and task deadline urgency.
+- **Search-State Expansion Measurement**: Search algorithms track and report total state expansions, enabling empirical evaluation and comparison between uninformed and informed search.
 
 ## Technology
 

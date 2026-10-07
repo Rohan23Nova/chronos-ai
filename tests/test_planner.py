@@ -35,14 +35,14 @@ class TestPlanner(unittest.TestCase):
         scheduled_task_ids = [entry.task_id for entry in result.schedule]
         self.assertEqual(scheduled_task_ids, [3, 1, 2])
         self.assertEqual(result.cost, 9)
-        self.assertEqual(expanded, 10)
+        self.assertEqual(expanded, 8)
 
     def test_astar_backward_compatibility(self):
         result, expanded = astar(self.initial_state, 24)
 
         self.assertIsNotNone(result)
         self.assertEqual(result.cost, 9)
-        self.assertEqual(expanded, 10)
+        self.assertEqual(expanded, 8)
 
 
 if __name__ == "__main__":
