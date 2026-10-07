@@ -51,6 +51,7 @@ Chronos AI is being developed around:
 - [x] A* planning engine
 - [x] Domain-specific heuristic
 - [x] Search comparison and state expansion measurement
+- [x] Rule-based knowledge system
 
 ### In Progress
 
@@ -59,12 +60,20 @@ Chronos AI is being developed around:
 
 ### Planned
 
-- [ ] Rule-based knowledge system
 - [ ] Planning layer extensions
 - [ ] Feedback-based adaptation
 - [ ] SQLite persistence
 - [ ] Streamlit interface
 - [ ] Experiments and evaluation
+
+## Knowledge Representation & Reasoning
+
+Chronos incorporates a lightweight, deterministic symbolic reasoning subsystem:
+
+- **Symbolic Facts**: Represents relational statements in predicate form `Fact(predicate, entity_id, value)` (e.g., `priority(task, high)`, `deadline_pressure(task, high)`).
+- **Domain Rules**: Declarative if-then production rules defining domain dependencies between priority, difficulty, deadlines, urgency, and execution risk.
+- **Forward Chaining**: A deterministic deductive inference engine that iteratively fires rules against known facts until reaching a stable state (fixed point).
+- **Derived Task Properties**: Infers high-level scheduling properties (such as risk levels, deadline pressure, and immediate attention flags) to inform subsequent planning decisions.
 
 ## Search & Evaluation
 
