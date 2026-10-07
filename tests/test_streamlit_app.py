@@ -41,6 +41,7 @@ class TestStreamlitApp(unittest.TestCase):
             "Feedback",
             "Planning History",
             "Explainability",
+            "Evaluation",
         ]
 
         for section in sections:

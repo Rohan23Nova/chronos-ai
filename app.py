@@ -128,6 +128,7 @@ nav_selection = st.sidebar.radio(
         "Feedback",
         "Planning History",
         "Explainability",
+        "Evaluation",
     ],
     index=0,
 )
@@ -768,3 +769,99 @@ elif nav_selection == "Explainability":
 
             with st.expander("📄 Full Text Explanation Report", expanded=False):
                 st.code(explanation.to_text(), language="text")
+
+
+# ---------------------------------------------------------------------------
+# 7. Evaluation & Benchmarks View
+# ---------------------------------------------------------------------------
+
+elif nav_selection == "Evaluation":
+    st.markdown("<div class='main-title'>Evaluation & Benchmarks</div>", unsafe_allow_html=True)
+    st.markdown(
+        "<div class='subtitle'>Empirical evaluation of search algorithms, knowledge rules, feedback adaptation, constraints, and scaling.</div>",
+        unsafe_allow_html=True,
+    )
+
+    results_file = os.path.join("evaluation", "results", "benchmark_results.json")
+    figures_dir = os.path.join("evaluation", "figures")
+
+    col_btn, col_info = st.columns([1.5, 4])
+    with col_btn:
+        if st.button("⚡ Run / Refresh Benchmarks", type="primary"):
+            with st.spinner("Executing evaluation benchmarks..."):
+                from chronos.evaluation.experiments import run_all_experiments
+                run_all_experiments(save_results=True, generate_figures=True)
+                st.success("Benchmarks executed successfully!")
+                st.rerun()
+
+    st.info(
+        "🔬 **Methodological Principles & Caveats**:\n\n"
+        "- **Empirical Measurements**: All numbers represent real measured runs from synthetic, reproducible benchmarks.\n"
+        "- **Heuristic Admissibility**: The domain-specific heuristic is designed for guidance and is **not proven admissible**. A* is not guaranteed globally optimal.\n"
+        "- **State Expansions**: States expanded is the primary machine-independent metric for comparing search effort.\n"
+        "- **Runtime**: Measured in milliseconds via high-resolution timers and is machine-dependent."
+    )
+
+    if not os.path.exists(results_file):
+        st.warning("No benchmark results found on disk. Click **Run / Refresh Benchmarks** above to generate them.")
+    else:
+        from chronos.evaluation.metrics import load_results_from_json
+        bench_results = load_results_from_json(results_file)
+
+        tab_alg, tab_kn, tab_adapt, tab_cons, tab_scale = st.tabs([
+            "1️⃣ Algorithm Comparison",
+            "2️⃣ Knowledge Heuristic",
+            "3️⃣ Feedback Adaptation",
+            "4️⃣ Constraints",
+            "5️⃣ Scaling",
+        ])
+
+        with tab_alg:
+            st.subheader("Experiment 1: Search Algorithm Comparison")
+            st.markdown("Comparing A*, UCS, BFS, and DFS on identical PlanningProblem scenarios.")
+            alg_data = [r.to_dict() for r in bench_results if r.experiment_name == "algorithm_comparison"]
+            if alg_data:
+                st.dataframe(pd.DataFrame(alg_data), use_container_width=True, hide_index=True)
+
+            alg_plot = os.path.join(figures_dir, "algorithm_comparison.png")
+            if os.path.exists(alg_plot):
+                st.image(alg_plot, caption="States Expanded by Algorithm across Benchmark Scenarios")
+
+        with tab_kn:
+            st.subheader("Experiment 2: Knowledge-Aware Heuristic Impact")
+            st.markdown("Evaluating A* with symbolic domain rules enabled vs disabled.")
+            kn_data = [r.to_dict() for r in bench_results if r.experiment_name == "knowledge_heuristic"]
+            if kn_data:
+                st.dataframe(pd.DataFrame(kn_data), use_container_width=True, hide_index=True)
+
+        with tab_adapt:
+            st.subheader("Experiment 3: Feedback-Based Adaptation")
+            st.markdown("Comparing baseline A* with A* under learned user feedback adjustments.")
+            adapt_data = [r.to_dict() for r in bench_results if r.experiment_name == "adaptation_experiment"]
+            if adapt_data:
+                st.dataframe(pd.DataFrame(adapt_data), use_container_width=True, hide_index=True)
+
+        with tab_cons:
+            st.subheader("Experiment 4: Hard Constraint Enforcement")
+            st.markdown("Validating candidate pruning and failure reporting on infeasible vs feasible problems.")
+            cons_data = [r.to_dict() for r in bench_results if r.experiment_name == "constraint_handling"]
+            if cons_data:
+                st.dataframe(pd.DataFrame(cons_data), use_container_width=True, hide_index=True)
+
+        with tab_scale:
+            st.subheader("Experiment 5: Problem Scaling (3 to 8 Tasks)")
+            st.markdown("Measuring state expansions and runtime as task count increases.")
+            scale_data = [r.to_dict() for r in bench_results if r.experiment_name == "scaling_experiment"]
+            if scale_data:
+                st.dataframe(pd.DataFrame(scale_data), use_container_width=True, hide_index=True)
+
+            sc_col1, sc_col2 = st.columns(2)
+            with sc_col1:
+                p1 = os.path.join(figures_dir, "states_expanded_vs_tasks.png")
+                if os.path.exists(p1):
+                    st.image(p1, caption="States Expanded vs Task Count")
+            with sc_col2:
+                p2 = os.path.join(figures_dir, "runtime_vs_tasks.png")
+                if os.path.exists(p2):
+                    st.image(p2, caption="Runtime (ms) vs Task Count")
+

@@ -1,0 +1,617 @@
+[
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "A*",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 8,
+    "runtime_ms": 0.682,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "Window: [18, 24]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "UCS",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 8,
+    "runtime_ms": 0.031,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "Window: [18, 24]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "BFS",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 14,
+    "states_expanded": 8,
+    "runtime_ms": 0.024,
+    "schedule_order": [
+      1,
+      2,
+      3
+    ],
+    "notes": "Window: [18, 24]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "DFS",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 14,
+    "states_expanded": 4,
+    "runtime_ms": 0.012,
+    "schedule_order": [
+      3,
+      2,
+      1
+    ],
+    "notes": "Window: [18, 24]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Small (4 tasks)",
+    "algorithm": "A*",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 14,
+    "states_expanded": 16,
+    "runtime_ms": 0.937,
+    "schedule_order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "Window: [18, 26]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Small (4 tasks)",
+    "algorithm": "UCS",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 14,
+    "states_expanded": 16,
+    "runtime_ms": 0.052,
+    "schedule_order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "Window: [18, 26]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Small (4 tasks)",
+    "algorithm": "BFS",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 17,
+    "states_expanded": 16,
+    "runtime_ms": 0.041,
+    "schedule_order": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "notes": "Window: [18, 26]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Small (4 tasks)",
+    "algorithm": "DFS",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 17,
+    "states_expanded": 7,
+    "runtime_ms": 0.017,
+    "schedule_order": [
+      4,
+      2,
+      1,
+      3
+    ],
+    "notes": "Window: [18, 26]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Medium (6 tasks)",
+    "algorithm": "A*",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 34,
+    "states_expanded": 64,
+    "runtime_ms": 4.898,
+    "schedule_order": [
+      2,
+      1,
+      5,
+      6,
+      3,
+      4
+    ],
+    "notes": "Window: [18, 30]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Medium (6 tasks)",
+    "algorithm": "UCS",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 34,
+    "states_expanded": 64,
+    "runtime_ms": 0.291,
+    "schedule_order": [
+      2,
+      1,
+      5,
+      6,
+      3,
+      4
+    ],
+    "notes": "Window: [18, 30]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Medium (6 tasks)",
+    "algorithm": "BFS",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 37,
+    "states_expanded": 64,
+    "runtime_ms": 0.24,
+    "schedule_order": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "notes": "Window: [18, 30]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Medium (6 tasks)",
+    "algorithm": "DFS",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 40,
+    "states_expanded": 16,
+    "runtime_ms": 0.048,
+    "schedule_order": [
+      6,
+      5,
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "Window: [18, 30]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Larger (8 tasks)",
+    "algorithm": "A*",
+    "task_count": 8,
+    "solution_found": true,
+    "final_cost": 84,
+    "states_expanded": 256,
+    "runtime_ms": 23.8,
+    "schedule_order": [
+      2,
+      6,
+      7,
+      8,
+      3,
+      1,
+      4,
+      5
+    ],
+    "notes": "Window: [18, 36]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Larger (8 tasks)",
+    "algorithm": "UCS",
+    "task_count": 8,
+    "solution_found": true,
+    "final_cost": 84,
+    "states_expanded": 256,
+    "runtime_ms": 1.564,
+    "schedule_order": [
+      2,
+      6,
+      7,
+      8,
+      3,
+      1,
+      4,
+      5
+    ],
+    "notes": "Window: [18, 36]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Larger (8 tasks)",
+    "algorithm": "BFS",
+    "task_count": 8,
+    "solution_found": true,
+    "final_cost": 87,
+    "states_expanded": 256,
+    "runtime_ms": 1.27,
+    "schedule_order": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "notes": "Window: [18, 36]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Larger (8 tasks)",
+    "algorithm": "DFS",
+    "task_count": 8,
+    "solution_found": true,
+    "final_cost": 89,
+    "states_expanded": 18,
+    "runtime_ms": 0.068,
+    "schedule_order": [
+      8,
+      7,
+      6,
+      5,
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "Window: [18, 36]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Infeasible (3 tasks)",
+    "algorithm": "A*",
+    "task_count": 3,
+    "solution_found": false,
+    "final_cost": null,
+    "states_expanded": 3,
+    "runtime_ms": 0.194,
+    "schedule_order": null,
+    "notes": "Window: [18, 22]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Infeasible (3 tasks)",
+    "algorithm": "UCS",
+    "task_count": 3,
+    "solution_found": false,
+    "final_cost": null,
+    "states_expanded": 3,
+    "runtime_ms": 0.007,
+    "schedule_order": null,
+    "notes": "Window: [18, 22]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Infeasible (3 tasks)",
+    "algorithm": "BFS",
+    "task_count": 3,
+    "solution_found": false,
+    "final_cost": null,
+    "states_expanded": 3,
+    "runtime_ms": 0.005,
+    "schedule_order": null,
+    "notes": "Window: [18, 22]"
+  },
+  {
+    "experiment_name": "algorithm_comparison",
+    "scenario": "Infeasible (3 tasks)",
+    "algorithm": "DFS",
+    "task_count": 3,
+    "solution_found": false,
+    "final_cost": null,
+    "states_expanded": 3,
+    "runtime_ms": 0.005,
+    "schedule_order": null,
+    "notes": "Window: [18, 22]"
+  },
+  {
+    "experiment_name": "knowledge_heuristic",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "A* (Knowledge Enabled)",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 8,
+    "runtime_ms": 0.297,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "Rules fired: urgency, risk, deadline_pressure, attention"
+  },
+  {
+    "experiment_name": "knowledge_heuristic",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "A* (Knowledge Disabled)",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 8,
+    "runtime_ms": 0.029,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "No symbolic rules; pure workload/urgency heuristic"
+  },
+  {
+    "experiment_name": "knowledge_heuristic",
+    "scenario": "Small (4 tasks)",
+    "algorithm": "A* (Knowledge Enabled)",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 14,
+    "states_expanded": 16,
+    "runtime_ms": 0.857,
+    "schedule_order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "Rules fired: urgency, risk, deadline_pressure, attention"
+  },
+  {
+    "experiment_name": "knowledge_heuristic",
+    "scenario": "Small (4 tasks)",
+    "algorithm": "A* (Knowledge Disabled)",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 14,
+    "states_expanded": 16,
+    "runtime_ms": 0.062,
+    "schedule_order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "No symbolic rules; pure workload/urgency heuristic"
+  },
+  {
+    "experiment_name": "knowledge_heuristic",
+    "scenario": "Medium (6 tasks)",
+    "algorithm": "A* (Knowledge Enabled)",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 34,
+    "states_expanded": 64,
+    "runtime_ms": 4.696,
+    "schedule_order": [
+      2,
+      1,
+      5,
+      6,
+      3,
+      4
+    ],
+    "notes": "Rules fired: urgency, risk, deadline_pressure, attention"
+  },
+  {
+    "experiment_name": "knowledge_heuristic",
+    "scenario": "Medium (6 tasks)",
+    "algorithm": "A* (Knowledge Disabled)",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 34,
+    "states_expanded": 64,
+    "runtime_ms": 0.349,
+    "schedule_order": [
+      2,
+      1,
+      5,
+      6,
+      3,
+      4
+    ],
+    "notes": "No symbolic rules; pure workload/urgency heuristic"
+  },
+  {
+    "experiment_name": "adaptation_experiment",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "A* (Baseline / No Feedback)",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 8,
+    "runtime_ms": 0.316,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "Neutral adaptation profiles (all adjustments 0.0)"
+  },
+  {
+    "experiment_name": "adaptation_experiment",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "A* (Feedback Adapted)",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 9,
+    "runtime_ms": 0.344,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "Task 1 adj: +1.40 (postponed/uncompleted); Task 2 adj: +0.40 (too difficult)"
+  },
+  {
+    "experiment_name": "constraint_handling",
+    "scenario": "Canonical (3 tasks)",
+    "algorithm": "A*",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 8,
+    "runtime_ms": 0.32,
+    "schedule_order": [
+      3,
+      1,
+      2
+    ],
+    "notes": "Feasible schedule found within [18, 24]"
+  },
+  {
+    "experiment_name": "constraint_handling",
+    "scenario": "Infeasible (3 tasks)",
+    "algorithm": "A*",
+    "task_count": 3,
+    "solution_found": false,
+    "final_cost": null,
+    "states_expanded": 3,
+    "runtime_ms": 0.207,
+    "schedule_order": null,
+    "notes": "Correctly pruned all paths (5 candidate rejections)"
+  },
+  {
+    "experiment_name": "scaling_experiment",
+    "scenario": "Scaling (3 tasks)",
+    "algorithm": "A*",
+    "task_count": 3,
+    "solution_found": true,
+    "final_cost": 9,
+    "states_expanded": 7,
+    "runtime_ms": 0.313,
+    "schedule_order": [
+      2,
+      1,
+      3
+    ],
+    "notes": "Window: [18, 30]"
+  },
+  {
+    "experiment_name": "scaling_experiment",
+    "scenario": "Scaling (4 tasks)",
+    "algorithm": "A*",
+    "task_count": 4,
+    "solution_found": true,
+    "final_cost": 19,
+    "states_expanded": 16,
+    "runtime_ms": 0.825,
+    "schedule_order": [
+      2,
+      1,
+      4,
+      3
+    ],
+    "notes": "Window: [18, 32]"
+  },
+  {
+    "experiment_name": "scaling_experiment",
+    "scenario": "Scaling (5 tasks)",
+    "algorithm": "A*",
+    "task_count": 5,
+    "solution_found": true,
+    "final_cost": 33,
+    "states_expanded": 32,
+    "runtime_ms": 2.164,
+    "schedule_order": [
+      2,
+      1,
+      4,
+      5,
+      3
+    ],
+    "notes": "Window: [18, 34]"
+  },
+  {
+    "experiment_name": "scaling_experiment",
+    "scenario": "Scaling (6 tasks)",
+    "algorithm": "A*",
+    "task_count": 6,
+    "solution_found": true,
+    "final_cost": 42,
+    "states_expanded": 64,
+    "runtime_ms": 5.058,
+    "schedule_order": [
+      2,
+      1,
+      6,
+      4,
+      5,
+      3
+    ],
+    "notes": "Window: [18, 35]"
+  },
+  {
+    "experiment_name": "scaling_experiment",
+    "scenario": "Scaling (7 tasks)",
+    "algorithm": "A*",
+    "task_count": 7,
+    "solution_found": true,
+    "final_cost": 53,
+    "states_expanded": 128,
+    "runtime_ms": 14.648,
+    "schedule_order": [
+      2,
+      1,
+      6,
+      4,
+      5,
+      3,
+      7
+    ],
+    "notes": "Window: [18, 37]"
+  },
+  {
+    "experiment_name": "scaling_experiment",
+    "scenario": "Scaling (8 tasks)",
+    "algorithm": "A*",
+    "task_count": 8,
+    "solution_found": true,
+    "final_cost": 66,
+    "states_expanded": 256,
+    "runtime_ms": 37.848,
+    "schedule_order": [
+      2,
+      1,
+      6,
+      4,
+      5,
+      3,
+      7,
+      8
+    ],
+    "notes": "Window: [18, 39]"
+  }
+]

@@ -57,15 +57,12 @@ Chronos AI is being developed around:
 - [x] Feedback-based adaptation
 - [x] SQLite persistence
 - [x] Streamlit interface
-
-### In Progress
-
-- [ ] Evaluation benchmarks
+- [x] Evaluation benchmarks
+- [x] Experiments and evaluation
 
 ### Planned
 
 - [ ] Planning layer extensions
-- [ ] Experiments and evaluation
 
 ## Integrated Planning Architecture
 
@@ -174,6 +171,61 @@ The UI serves strictly as a **presentation and application layer**:
 4. **Feedback**: Submit structured feedback on tasks (e.g. completed early, postponed, too difficult), update task adaptation profiles, and observe net adaptive heuristic adjustments.
 5. **Planning History**: Audit previous planning runs, algorithm comparisons, costs, and state expansions, with drill-down into historical schedules.
 6. **Explainability**: Inspect verified explanations for scheduled plans, including task-level scheduling rationales, symbolic derived facts, pairwise ordering decisions, constraint rejections, and search trace data.
+7. **Evaluation**: Visual dashboard presenting empirical benchmark results, comparison tables, and generated scaling curves.
+
+## Controlled Evaluation & Benchmarks
+
+Chronos incorporates a dedicated, reproducible evaluation suite (`chronos.evaluation`) measuring search efficiency, solution quality, heuristic impact, feedback adaptation, constraint pruning, and problem scaling.
+
+All reported numbers are produced by actual executions on deterministic synthetic scenarios; no values are fabricated or hard-coded.
+
+### Evaluation Suite Architecture
+
+- **`chronos/evaluation/scenarios.py`**: Deterministic benchmark specifications:
+  - **Canonical (3 tasks)**: Benchmark scenario with DSA (2h), AI (3h), and DBMS (1h).
+  - **Small (4 tasks)**: Competing priorities with tight early deadlines.
+  - **Medium (6 tasks)**: Trade-offs between high-priority items and large low-priority tasks.
+  - **Larger (8 tasks)**: High-complexity planning instance with multiple difficulty tiers.
+  - **Infeasible (3 tasks)**: Deliberately overconstrained scenario where total duration exceeds available window.
+  - **Scaling Sequence (3 to 8 tasks)**: Progressive task counts measuring state-space growth.
+- **`chronos/evaluation/metrics.py`**: Structured `ExperimentResult` schema and CSV/JSON serializers.
+- **`chronos/evaluation/plots.py`**: Publication-quality plots saved to `evaluation/figures/`.
+- **`chronos/evaluation/experiments.py`**: Suite runner and CLI entry point.
+
+### Running Evaluations
+
+Execute the complete evaluation suite via CLI:
+
+```bash
+python3 -m chronos.evaluation.experiments
+# Or within the virtual environment:
+.venv/bin/python -m chronos.evaluation.experiments
+```
+
+This prints formatted summary tables, writes `evaluation/results/benchmark_results.json` and `evaluation/results/benchmark_results.csv`, and generates figures in `evaluation/figures/`.
+
+### Core Experiments & Key Findings
+
+1. **Search Algorithm Comparison (A*, UCS, BFS, DFS)**:
+   - **Cost Optimality**: A* and UCS find the lowest-cost feasible schedules across all benchmark problems (e.g. Cost = 9.0 on Canonical, Cost = 14.0 on Small).
+   - **Suboptimality of Uninformed Search**: DFS finds feasible paths quickly with fewer expansions (4 on Canonical, 18 on Larger) by plunging down deep branches, but returns significantly higher waiting costs (e.g. Cost = 89.0 vs 84.0 on Larger). BFS expands all frontier nodes layer-by-layer, finding suboptimal schedules (Cost = 87.0 on Larger).
+   - **Constraint Infeasibility**: On the overconstrained problem, all four algorithms correctly evaluate and report no solution (`solution_found = False`, states expanded = 3).
+2. **Knowledge-Aware Heuristic Impact**:
+   - Compares A* with symbolic domain rules enabled vs disabled.
+   - Forward-chained rules provide rich semantic classifications (`urgency`, `risk`, `attention`) for explainability while maintaining robust search guidance.
+3. **Feedback-Based Adaptation**:
+   - Applying repeated postponement and difficulty feedback modifies the task's heuristic weight, shifting search priorities and altering node expansion order (expansions increased from 8 to 9 on Canonical).
+4. **Hard Constraint Enforcement**:
+   - Confirms that invalid candidate actions violating deadlines or planning horizons are strictly pruned by `explain_feasibility` during successor generation.
+5. **Scaling Behavior (3 to 8 tasks)**:
+   - Evaluates search expansions as task count increases: $3 \to 7$, $4 \to 16$, $5 \to 32$, $6 \to 64$, $7 \to 128$, $8 \to 256$ states expanded ($O(2^n)$ growth), with runtimes scaling smoothly from 0.31 ms to 37.85 ms.
+
+### Methodological Interpretation Caveats
+
+1. **Heuristic Admissibility**: The domain-specific heuristic is designed for guidance and is **not proven admissible**. A* is therefore not guaranteed to find globally optimal schedules in all possible domains.
+2. **State Expansions as Primary Metric**: States expanded provides a machine-independent measure of search effort.
+3. **Runtime Measurements**: Wall-clock runtimes (ms) are machine-dependent and subject to OS scheduling.
+4. **Scope**: The evaluation demonstrates observed empirical behavior on defined benchmarks, not formal universal guarantees.
 
 ## Technology
 
@@ -181,6 +233,7 @@ The UI serves strictly as a **presentation and application layer**:
 - Streamlit
 - SQLite (Standard Library `sqlite3`)
 - Pandas
+- Matplotlib
 
 ## Project Philosophy
 
@@ -196,6 +249,9 @@ planning system that can be understood, evaluated, and explained.
 chronos-ai/
 ├── app.py                      # Streamlit interactive application layer
 ├── requirements.txt            # Project dependencies
+├── evaluation/
+│   ├── figures/                # Generated experiment plots (PNG)
+│   └── results/                # Serialized benchmark results (JSON, CSV)
 ├── chronos/
 │   ├── models/                 # Core data models (Task, State, ScheduleEntry)
 │   ├── planning/               # PlanningProblem, heuristics, and successors
@@ -205,7 +261,8 @@ chronos-ai/
 │   ├── explainability/         # XAI report generator and SearchTrace
 │   ├── adaptation/             # FeedbackRecord and AdaptationModel
 │   ├── storage/                # SQLite DatabaseManager and persistence
-│   └── ui/                     # Presentation helpers and planning executor
+│   ├── ui/                     # Presentation helpers and planning executor
+│   └── evaluation/             # Benchmarks, experiments, metrics, and plots
 │
 ├── tests/                      # Comprehensive unit and integration test suite
 ├── docs/
