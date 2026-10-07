@@ -4,15 +4,18 @@ from chronos.planning.problem import is_goal
 from chronos.planning.successor import generate_successors
 from chronos.planning.heuristic import heuristic
 
+
 def astar(initial_state, available_end):
 
     frontier = []
     counter = 0
     expanded = 0
 
+    initial_h = heuristic(initial_state, available_end)
+
     heapq.heappush(
         frontier,
-        (0, counter, initial_state)
+        (initial_h, counter, initial_state)
     )
 
     while frontier:
