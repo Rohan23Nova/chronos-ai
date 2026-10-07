@@ -53,10 +53,10 @@ Chronos AI is being developed around:
 - [x] Search comparison and state expansion measurement
 - [x] Rule-based knowledge system
 - [x] Knowledge-aware heuristic integration
+- [x] Explainable scheduling decisions
 
 ### In Progress
 
-- [ ] Explainable scheduling decisions
 - [ ] Evaluation benchmarks
 
 ### Planned
@@ -106,6 +106,20 @@ Chronos supports classical state-space search strategies operating over the `Pla
 - **Domain-Specific Heuristic**: Evaluates workload pressure against available window time and task deadline urgency.
 - **Search-State Expansion Measurement**: Search algorithms track and report total state expansions, enabling empirical evaluation and comparison between uninformed and informed search.
 
+## Explainable Planning
+
+Chronos features an Explainable AI / Explainable Planning subsystem (`chronos.explainability`) that transforms internal planning states, constraint checks, and symbolic inferences into inspectable, human-readable explanations:
+
+- **Task-Level Reasoning**: Explains why a task was placed at a specific time slot, accounting for its duration, priority, deadline, difficulty, waiting time, and cost contribution.
+- **Knowledge-Derived Factors**: Highlights how forward-chained domain facts (`urgency`, `risk`, `deadline_pressure`, `attention`) influenced prioritization.
+- **Constraint Explanations**: Diagnoses candidate feasibility against the planning horizon and task deadlines with exact numerical boundaries.
+- **Scheduling & Order Reasoning**: Explains pairwise task ordering (e.g., why task A preceded task B) using legitimate, grounded factors such as higher priority, earlier deadline, higher urgency, immediate attention, or mutual delay penalty reduction—never claiming unsupported reasons.
+- **Cost Transparency**: Details individual task waiting costs ($w_i \times \text{waiting\_time}$) and total schedule cost.
+- **Optional Planning Trace**: A lightweight search trace (`SearchTrace`) captures expanded nodes, candidate acceptances, and pruned/rejected actions with explicit rejection rationales.
+
+> [!NOTE]
+> Explanations are strictly grounded in concrete algorithmic decisions and state-space evaluations computed by Chronos. The system does not use black-box language models or claim human-level or causal certainty beyond what the planning algorithms actually compute.
+
 ## Technology
 
 - Python
@@ -132,10 +146,10 @@ chronos-ai/
 │   ├── search/
 │   ├── knowledge/
 │   ├── constraints/
-│   ├── heuristic/
-│   ├── explain/
+│   ├── explainability/
 │   └── learning/
 │
 ├── tests/
 ├── docs/
 └── README.md
+```

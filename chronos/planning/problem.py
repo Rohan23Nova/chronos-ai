@@ -27,6 +27,6 @@ class PlanningProblem:
     def is_goal(self, state):
         return is_goal(state)
 
-    def get_successors(self, state):
+    def get_successors(self, state, trace=None):
         from chronos.planning.successor import generate_successors
-        return generate_successors(state, self.available_end, self.planning_start)
+        return generate_successors(state, self.available_end, self.planning_start, trace=trace)

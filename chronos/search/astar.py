@@ -4,7 +4,7 @@ from chronos.planning.heuristic import heuristic
 from chronos.knowledge import get_default_engine
 
 
-def astar(problem, available_end=None, knowledge_engine=None):
+def astar(problem, available_end=None, knowledge_engine=None, trace=None):
     if available_end is not None:
         from chronos.planning.problem import PlanningProblem
         problem = PlanningProblem(
@@ -47,11 +47,13 @@ def astar(problem, available_end=None, knowledge_engine=None):
             continue
 
         expanded += 1
+        if trace is not None:
+            trace.record_expansion(current)
 
         if problem.is_goal(current):
             return current, expanded
 
-        for successor in problem.get_successors(current):
+        for successor in problem.get_successors(current, trace=trace):
             succ_key = successor.key()
             g = successor.cost
 
