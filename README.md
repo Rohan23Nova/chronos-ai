@@ -56,6 +56,7 @@ Chronos AI is being developed around:
 - [x] Explainable scheduling decisions
 - [x] Feedback-based adaptation
 - [x] SQLite persistence
+- [x] Streamlit interface
 
 ### In Progress
 
@@ -64,7 +65,6 @@ Chronos AI is being developed around:
 ### Planned
 
 - [ ] Planning layer extensions
-- [ ] Streamlit interface
 - [ ] Experiments and evaluation
 
 ## Integrated Planning Architecture
@@ -147,13 +147,40 @@ Chronos provides a lightweight, local SQLite persistence layer (`chronos.storage
 > [!NOTE]
 > The database layer is strictly for persistent storage and metadata retrieval. It contains zero AI planning, heuristic, or constraint checking logic.
 
+## Streamlit UI
+
+Chronos provides an interactive, desktop-oriented web dashboard (`app.py`) built with Streamlit.
+
+The UI serves strictly as a **presentation and application layer**:
+- It collects user parameters, invokes Chronos's underlying algorithms, and visualizes the results.
+- **No AI logic resides in `app.py`**; all planning, heuristic evaluations, knowledge rule forward-chaining, explainability generation, and adaptation remain inside the `chronos/` core modules.
+
+### Installation & Launch
+
+1. Install project dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. Launch the Streamlit application:
+   ```bash
+   streamlit run app.py
+   ```
+
+### Major UI Sections
+
+1. **Dashboard**: High-level overview displaying stored tasks, planning runs, generated schedules, and feedback records, alongside the latest planning run summary.
+2. **Tasks**: Manage the task catalogue (view stored tasks, add new tasks with validation, delete tasks, or seed canonical benchmark tasks).
+3. **Plan Schedule**: Select tasks, specify planning windows, choose search algorithms (A*, UCS, BFS, DFS), execute state-space search, inspect metrics, and visualize schedule timelines.
+4. **Feedback**: Submit structured feedback on tasks (e.g. completed early, postponed, too difficult), update task adaptation profiles, and observe net adaptive heuristic adjustments.
+5. **Planning History**: Audit previous planning runs, algorithm comparisons, costs, and state expansions, with drill-down into historical schedules.
+6. **Explainability**: Inspect verified explanations for scheduled plans, including task-level scheduling rationales, symbolic derived facts, pairwise ordering decisions, constraint rejections, and search trace data.
+
 ## Technology
 
-- Python
+- Python 3.12+
 - Streamlit
-- SQLite
-- NumPy / Pandas where useful
-- Matplotlib / Plotly where useful
+- SQLite (Standard Library `sqlite3`)
+- Pandas
 
 ## Project Philosophy
 
@@ -167,17 +194,20 @@ planning system that can be understood, evaluated, and explained.
 
 ```text
 chronos-ai/
+├── app.py                      # Streamlit interactive application layer
+├── requirements.txt            # Project dependencies
 ├── chronos/
-│   ├── models/
-│   ├── planning/
-│   ├── search/
-│   ├── knowledge/
-│   ├── constraints/
-│   ├── explainability/
-│   ├── adaptation/
-│   └── storage/
+│   ├── models/                 # Core data models (Task, State, ScheduleEntry)
+│   ├── planning/               # PlanningProblem, heuristics, and successors
+│   ├── search/                 # A*, UCS, BFS, and DFS search algorithms
+│   ├── knowledge/              # Symbolic facts, domain rules, and RuleEngine
+│   ├── constraints/            # Hard constraint feasibility checkers
+│   ├── explainability/         # XAI report generator and SearchTrace
+│   ├── adaptation/             # FeedbackRecord and AdaptationModel
+│   ├── storage/                # SQLite DatabaseManager and persistence
+│   └── ui/                     # Presentation helpers and planning executor
 │
-├── tests/
+├── tests/                      # Comprehensive unit and integration test suite
 ├── docs/
 └── README.md
 ```
