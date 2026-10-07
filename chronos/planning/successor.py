@@ -1,15 +1,16 @@
 from chronos.models.state import State
 from chronos.models.schedule import ScheduleEntry
 from chronos.planning.problem import task_cost
+from chronos.constraints.checker import is_feasible
 
 def generate_successors(state, available_end):
     successors = []
 
     for task in state.remaining_tasks:
 
-        end_time = state.current_time + task.duration
+        if is_feasible(task, state.current_time, available_end):
 
-        if end_time <= available_end:
+            end_time = state.current_time + task.duration
 
             entry = ScheduleEntry(
                 task_id=task.id,
