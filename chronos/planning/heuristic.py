@@ -11,10 +11,11 @@ def priority_weight(priority):
     return weights[priority]
 
 
-def heuristic(state, available_end, knowledge_engine=None):
+def heuristic(state, available_end, knowledge_engine=None, adaptation_model=None):
     """
     Domain-specific scheduling heuristic combining workload pressure,
-    deadline urgency, and optional symbolic domain knowledge.
+    deadline urgency, optional symbolic domain knowledge, and optional
+    user feedback adaptation.
 
     Note: This is a domain-specific search guidance heuristic and is not
     claimed to be admissible.
@@ -67,10 +68,15 @@ def heuristic(state, available_end, knowledge_engine=None):
             elif Fact("risk", task.id, "medium") in facts:
                 knowledge_pressure += 0.2
 
-    return workload_pressure + urgency_pressure + knowledge_pressure
+    adaptation_pressure = 0
+    if adaptation_model is not None:
+        for task in state.remaining_tasks:
+            adaptation_pressure += adaptation_model.get_adjustment(task.id)
+
+    return workload_pressure + urgency_pressure + knowledge_pressure + adaptation_pressure
 
 
-def get_heuristic_breakdown(state, available_end, knowledge_engine=None):
+def get_heuristic_breakdown(state, available_end, knowledge_engine=None, adaptation_model=None):
     """
     Detailed component breakdown of the heuristic for explainability and inspection.
     """
@@ -79,8 +85,10 @@ def get_heuristic_breakdown(state, available_end, knowledge_engine=None):
             "workload_pressure": 0,
             "urgency_pressure": 0,
             "knowledge_pressure": 0,
+            "adaptation_pressure": 0,
             "total": 0,
             "task_facts": {},
+            "task_adaptations": {},
         }
 
     total_remaining_duration = sum(t.duration for t in state.remaining_tasks)
@@ -114,10 +122,20 @@ def get_heuristic_breakdown(state, available_end, knowledge_engine=None):
             elif Fact("risk", task.id, "medium") in facts:
                 knowledge_pressure += 0.2
 
+    adaptation_pressure = 0
+    task_adaptations = {}
+    if adaptation_model is not None:
+        for task in state.remaining_tasks:
+            adj = adaptation_model.get_adjustment(task.id)
+            task_adaptations[task.id] = adj
+            adaptation_pressure += adj
+
     return {
         "workload_pressure": workload_pressure,
         "urgency_pressure": urgency_pressure,
         "knowledge_pressure": knowledge_pressure,
-        "total": workload_pressure + urgency_pressure + knowledge_pressure,
+        "adaptation_pressure": adaptation_pressure,
+        "total": workload_pressure + urgency_pressure + knowledge_pressure + adaptation_pressure,
         "task_facts": task_facts,
+        "task_adaptations": task_adaptations,
     }

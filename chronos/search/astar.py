@@ -4,7 +4,7 @@ from chronos.planning.heuristic import heuristic
 from chronos.knowledge import get_default_engine
 
 
-def astar(problem, available_end=None, knowledge_engine=None, trace=None):
+def astar(problem, available_end=None, knowledge_engine=None, trace=None, adaptation_model=None):
     if available_end is not None:
         from chronos.planning.problem import PlanningProblem
         problem = PlanningProblem(
@@ -30,7 +30,12 @@ def astar(problem, available_end=None, knowledge_engine=None, trace=None):
     initial_key = initial_state.key()
     best_cost[initial_key] = initial_state.cost
 
-    initial_h = heuristic(initial_state, available_end, knowledge_engine=knowledge_engine)
+    initial_h = heuristic(
+        initial_state,
+        available_end,
+        knowledge_engine=knowledge_engine,
+        adaptation_model=adaptation_model,
+    )
 
     heapq.heappush(
         frontier,
@@ -61,7 +66,12 @@ def astar(problem, available_end=None, knowledge_engine=None, trace=None):
                 best_cost[succ_key] = g
                 counter += 1
 
-                h = heuristic(successor, available_end, knowledge_engine=knowledge_engine)
+                h = heuristic(
+                    successor,
+                    available_end,
+                    knowledge_engine=knowledge_engine,
+                    adaptation_model=adaptation_model,
+                )
                 f = g + h
 
                 heapq.heappush(

@@ -157,6 +157,71 @@ class TestHeuristic(unittest.TestCase):
         )
         self.assertAlmostEqual(breakdown["total"], expected_total)
 
+    def test_heuristic_without_adaptation_remains_valid(self):
+        # 1. Existing heuristic behavior remains valid without adaptation
+        state = State(18, [self.dsa, self.ai, self.dbms], [], 0)
+        h_base = heuristic(state, 24, knowledge_engine=self.engine)
+        bd = get_heuristic_breakdown(state, 24, knowledge_engine=self.engine)
+
+        self.assertEqual(bd["adaptation_pressure"], 0)
+        self.assertEqual(h_base, bd["total"])
+
+    def test_adaptation_can_be_disabled(self):
+        # 2. Adaptation can be disabled
+        state = State(18, [self.dsa], [], 0)
+        from chronos.adaptation import AdaptationModel, POSTPONED
+        model = AdaptationModel()
+        model.record_feedback(self.dsa.id, POSTPONED)
+
+        h_with_model = heuristic(state, 24, knowledge_engine=self.engine, adaptation_model=model)
+        h_disabled = heuristic(state, 24, knowledge_engine=self.engine, adaptation_model=None)
+
+        self.assertGreater(h_with_model, h_disabled)
+
+    def test_feedback_changes_adaptation_pressure_and_direction(self):
+        # 3 & 4. Feedback changes adaptation pressure in a deterministic direction
+        state = State(18, [self.dsa], [], 0)
+        from chronos.adaptation import AdaptationModel, POSTPONED, COMPLETED_EARLY
+        model_pos = AdaptationModel()
+        model_pos.record_feedback(self.dsa.id, POSTPONED)
+        model_pos.record_feedback(self.dsa.id, POSTPONED)
+
+        bd_pos = get_heuristic_breakdown(state, 24, knowledge_engine=self.engine, adaptation_model=model_pos)
+        self.assertGreater(bd_pos["adaptation_pressure"], 0)
+        self.assertIn(self.dsa.id, bd_pos["task_adaptations"])
+
+        # Model with early completion
+        model_neg = AdaptationModel()
+        model_neg.record_feedback(self.dsa.id, COMPLETED_EARLY)
+        bd_neg = get_heuristic_breakdown(state, 24, knowledge_engine=self.engine, adaptation_model=model_neg)
+        self.assertLess(bd_neg["adaptation_pressure"], 0)
+
+    def test_hard_constraints_remain_unaffected_by_adaptation(self):
+        # 5. Hard constraints remain unaffected by adaptation pressure
+        from chronos.adaptation import AdaptationModel, POSTPONED
+        from chronos.planning.problem import PlanningProblem
+        from chronos.search.astar import astar
+
+        model = AdaptationModel()
+        for _ in range(5):
+            model.record_feedback(self.dsa.id, POSTPONED)
+            model.record_feedback(self.ai.id, POSTPONED)
+            model.record_feedback(self.dbms.id, POSTPONED)
+
+        prob = PlanningProblem(
+            initial_state=State(18, [self.dsa, self.ai, self.dbms], [], 0),
+            planning_start=18,
+            available_end=24,
+        )
+        res, exp = astar(prob, adaptation_model=model)
+        self.assertIsNotNone(res)
+        self.assertEqual(len(res.remaining_tasks), 0)
+        # Verify hard constraints strictly satisfied
+        self.assertLessEqual(res.schedule[-1].end_time, 24)
+        for entry in res.schedule:
+            task = next(t for t in [self.dsa, self.ai, self.dbms] if t.id == entry.task_id)
+            self.assertLessEqual(entry.end_time, task.deadline)
+
 
 if __name__ == "__main__":
     unittest.main()

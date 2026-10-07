@@ -284,6 +284,69 @@ class TestExplainability(unittest.TestCase):
         self.assertIn("No feasible schedule found", explanation.problem_summary)
         self.assertGreater(len(explanation.rejected_candidates), 0)
 
+    def test_explanation_without_adaptation_remains_clean(self):
+        # Step 13.1: Explanations still work without adaptation
+        result, _ = astar(self.problem)
+        explanation = explain_schedule(self.problem, result, knowledge_engine=self.engine, adaptation_model=None)
+
+        for te in explanation.task_explanations:
+            self.assertEqual(te.adaptation_adjustment, 0.0)
+            self.assertEqual(len(te.adaptation_notes), 0)
+
+        text = explanation.to_text()
+        self.assertNotIn("Adaptive feedback notes", text)
+
+    def test_explanation_with_adaptation_includes_learned_information(self):
+        # Step 13.2 & 13.3: Explanations include adaptive information based on actual feedback
+        from chronos.adaptation import AdaptationModel, POSTPONED, TOO_DIFFICULT
+        adapt_model = AdaptationModel()
+        adapt_model.record_feedback(self.dsa.id, POSTPONED)
+        adapt_model.record_feedback(self.dsa.id, POSTPONED)
+        adapt_model.record_feedback(self.dsa.id, TOO_DIFFICULT)
+
+        result, _ = astar(self.problem, adaptation_model=adapt_model)
+        explanation = explain_schedule(
+            self.problem,
+            result,
+            knowledge_engine=self.engine,
+            adaptation_model=adapt_model,
+        )
+
+        dsa_exp = next(te for te in explanation.task_explanations if te.task_id == self.dsa.id)
+        self.assertGreater(dsa_exp.adaptation_adjustment, 0.0)
+        self.assertGreater(len(dsa_exp.adaptation_notes), 0)
+
+        notes_str = " ".join(dsa_exp.adaptation_notes)
+        self.assertIn("postponed 2 time(s)", notes_str)
+        self.assertIn("too difficult", notes_str)
+
+        text = explanation.to_text()
+        self.assertIn("Adaptive feedback notes", text)
+        self.assertIn("postponed 2 time(s)", text)
+
+    def test_no_feedback_means_no_fabricated_adaptive_reason(self):
+        # Step 13.4: No feedback means no fabricated adaptive reason
+        from chronos.adaptation import AdaptationModel, POSTPONED
+        adapt_model = AdaptationModel()
+        # Only DSA has feedback; DBMS and AI have none
+        adapt_model.record_feedback(self.dsa.id, POSTPONED)
+
+        result, _ = astar(self.problem, adaptation_model=adapt_model)
+        explanation = explain_schedule(
+            self.problem,
+            result,
+            knowledge_engine=self.engine,
+            adaptation_model=adapt_model,
+        )
+
+        dbms_exp = next(te for te in explanation.task_explanations if te.task_id == self.dbms.id)
+        ai_exp = next(te for te in explanation.task_explanations if te.task_id == self.ai.id)
+
+        self.assertEqual(len(dbms_exp.adaptation_notes), 0)
+        self.assertEqual(len(ai_exp.adaptation_notes), 0)
+        self.assertEqual(dbms_exp.adaptation_adjustment, 0.0)
+        self.assertEqual(ai_exp.adaptation_adjustment, 0.0)
+
 
 def run_explainability_demo():
     dsa = Task(1, "DSA", 2, "high", 24, "high")

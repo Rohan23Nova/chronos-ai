@@ -95,6 +95,8 @@ class TaskExplanation:
     derived_facts: List[Fact]
     constraint_status: str
     reasons: List[str]
+    adaptation_adjustment: float = 0.0
+    adaptation_notes: List[str] = field(default_factory=list)
 
 
 @dataclass
@@ -154,6 +156,11 @@ class ScheduleExplanation:
             lines.append("- Scheduling reasons:")
             for r in te.reasons:
                 lines.append(f"  * {r}")
+
+            if te.adaptation_notes:
+                lines.append("- Adaptive feedback notes:")
+                for an in te.adaptation_notes:
+                    lines.append(f"  * {an}")
             lines.append("")
 
         if self.ordering_explanations:
@@ -319,6 +326,7 @@ def explain_schedule(
     search_trace: Optional[SearchTrace] = None,
     tasks: Optional[List[Task]] = None,
     states_expanded: Optional[int] = None,
+    adaptation_model: Optional[Any] = None,
 ) -> ScheduleExplanation:
     """
     Generate a complete, verifiable explanation for a final schedule.
@@ -429,6 +437,42 @@ def explain_schedule(
         if Fact("urgency", task.id, "high") in derived_facts and Fact("attention", task.id, "immediate") not in derived_facts:
             reasons.append(f"High urgency task based on high priority.")
 
+        # Adaptive feedback signals
+        adaptation_adjustment = 0.0
+        adaptation_notes: List[str] = []
+        if adaptation_model is not None:
+            profile = adaptation_model.get_task_profile(task.id)
+            adaptation_adjustment = profile.net_adjustment
+            if profile.postponement_count > 0:
+                note = (
+                    f"Received additional scheduling pressure (+{profile.postponement_pressure:.2f}) "
+                    f"because it was postponed {profile.postponement_count} time(s)."
+                )
+                adaptation_notes.append(note)
+                reasons.append(note)
+
+            if profile.too_difficult_count > 0:
+                note = (
+                    f"Received additional difficulty pressure (+{profile.difficulty_pressure:.2f}) "
+                    f"due to {profile.too_difficult_count} 'too difficult' feedback report(s)."
+                )
+                adaptation_notes.append(note)
+                reasons.append(note)
+
+            if profile.completed_early_count > 0:
+                relief = min(0.8, profile.completed_early_count * 0.3)
+                note = (
+                    f"Received reduced adaptive pressure (-{relief:.2f}) "
+                    f"because it was completed earlier than scheduled {profile.completed_early_count} time(s)."
+                )
+                adaptation_notes.append(note)
+                reasons.append(note)
+
+            if profile.completed_on_time_count > 0 and not adaptation_notes:
+                note = "Reliable task with on-time completion history."
+                adaptation_notes.append(note)
+                reasons.append(note)
+
         task_explanations.append(
             TaskExplanation(
                 task_id=task.id,
@@ -445,6 +489,8 @@ def explain_schedule(
                 derived_facts=derived_facts,
                 constraint_status=constraint_status,
                 reasons=reasons,
+                adaptation_adjustment=adaptation_adjustment,
+                adaptation_notes=adaptation_notes,
             )
         )
 

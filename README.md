@@ -54,6 +54,7 @@ Chronos AI is being developed around:
 - [x] Rule-based knowledge system
 - [x] Knowledge-aware heuristic integration
 - [x] Explainable scheduling decisions
+- [x] Feedback-based adaptation
 
 ### In Progress
 
@@ -62,7 +63,6 @@ Chronos AI is being developed around:
 ### Planned
 
 - [ ] Planning layer extensions
-- [ ] Feedback-based adaptation
 - [ ] SQLite persistence
 - [ ] Streamlit interface
 - [ ] Experiments and evaluation
@@ -120,6 +120,20 @@ Chronos features an Explainable AI / Explainable Planning subsystem (`chronos.ex
 > [!NOTE]
 > Explanations are strictly grounded in concrete algorithmic decisions and state-space evaluations computed by Chronos. The system does not use black-box language models or claim human-level or causal certainty beyond what the planning algorithms actually compute.
 
+## Feedback-Based Adaptation
+
+Chronos implements a transparent, deterministic feedback-based adaptive preference mechanism (`chronos.adaptation`):
+
+- **Structured Feedback Records**: Captures explicit user feedback events (`completed_on_time`, `completed_early`, `postponed`, `not_completed`, `too_difficult`, `too_easy`, `schedule_acceptable`, `schedule_unacceptable`).
+- **Interpretable Statistical Profiles**: Aggregates event counts per task into transparent metrics, including postponement frequency, difficulty complaints, and a normalized reliability score.
+- **Bounded Adaptive Pressure**: Derives deterministic scheduling adjustments bounded strictly within `[-2.0, +2.0]`. Tasks repeatedly postponed or marked too difficult receive increased scheduling consideration, whereas tasks consistently completed early or on time receive an appropriate relief discount.
+- **Heuristic Influence**: Seamlessly integrates into the A* planning heuristic as an additional term:
+  $$\text{total\_heuristic} = \text{workload\_pressure} + \text{urgency\_pressure} + \text{knowledge\_pressure} + \text{adaptation\_pressure}$$
+- **Explainable Adaptation**: Learned preferences and historical statistics are exposed directly through the explainability subsystem, detailing exact historical counts and numerical pressures.
+
+> [!NOTE]
+> This adaptation subsystem is a lightweight, interpretable preference update mechanism based on empirical user feedback counts. It does not perform black-box statistical model training, neural learning, or reinforcement learning.
+
 ## Technology
 
 - Python
@@ -147,7 +161,7 @@ chronos-ai/
 │   ├── knowledge/
 │   ├── constraints/
 │   ├── explainability/
-│   └── learning/
+│   └── adaptation/
 │
 ├── tests/
 ├── docs/
