@@ -55,6 +55,7 @@ Chronos AI is being developed around:
 - [x] Knowledge-aware heuristic integration
 - [x] Explainable scheduling decisions
 - [x] Feedback-based adaptation
+- [x] SQLite persistence
 
 ### In Progress
 
@@ -63,7 +64,6 @@ Chronos AI is being developed around:
 ### Planned
 
 - [ ] Planning layer extensions
-- [ ] SQLite persistence
 - [ ] Streamlit interface
 - [ ] Experiments and evaluation
 
@@ -134,6 +134,19 @@ Chronos implements a transparent, deterministic feedback-based adaptive preferen
 > [!NOTE]
 > This adaptation subsystem is a lightweight, interpretable preference update mechanism based on empirical user feedback counts. It does not perform black-box statistical model training, neural learning, or reinforcement learning.
 
+## Persistence & Storage
+
+Chronos provides a lightweight, local SQLite persistence layer (`chronos.storage`) using Python's standard library `sqlite3`:
+
+- **Decoupled Architecture**: SQLite operates purely as an external persistence boundary. The core search algorithms (A*, UCS), heuristics, and knowledge reasoning are completely decoupled from database access and can execute in memory without opening a database.
+- **Task Management**: Persists, retrieves, updates, and deletes tasks via parameterized SQL queries, mapping rows directly to the standard `Task` dataclass.
+- **Feedback History**: Stores user evaluations (`FeedbackRecord`) with automated foreign-key validation and cascading semantics.
+- **Schedule & Run History**: Logs generated schedules, individual schedule entries, and planning run performance metrics (`algorithm`, `total_cost`, `states_expanded`, `success`).
+- **Adaptation Reconstruction**: Provides `build_adaptation_model(...)` to re-instantiate the exact learned `AdaptationModel` from persisted feedback without duplicating scoring formulas.
+
+> [!NOTE]
+> The database layer is strictly for persistent storage and metadata retrieval. It contains zero AI planning, heuristic, or constraint checking logic.
+
 ## Technology
 
 - Python
@@ -161,7 +174,8 @@ chronos-ai/
 │   ├── knowledge/
 │   ├── constraints/
 │   ├── explainability/
-│   └── adaptation/
+│   ├── adaptation/
+│   └── storage/
 │
 ├── tests/
 ├── docs/
