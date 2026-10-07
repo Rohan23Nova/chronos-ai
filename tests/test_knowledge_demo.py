@@ -7,6 +7,10 @@ from chronos.knowledge import (
 )
 
 
+from chronos.models.state import State
+from chronos.planning.heuristic import get_heuristic_breakdown
+
+
 def run_demo():
     engine = get_default_engine()
     current_time = 18
@@ -18,13 +22,17 @@ def run_demo():
     tasks = [dsa, ai, dbms]
 
     print("==================================================")
-    print("Chronos AI: Symbolic Knowledge & Rule Reasoning Demo")
+    print("Chronos AI: Symbolic Knowledge & Heuristic Trace Demo")
     print("==================================================")
     print(f"Planning Context Current Time: {current_time}\n")
 
     for task in tasks:
         initial = task_to_facts(task, current_time=current_time)
         derived = engine.get_derived_facts(initial)
+
+        # Single-task state to isolate this task's heuristic contribution
+        single_task_state = State(current_time, [task], [], 0)
+        breakdown = get_heuristic_breakdown(single_task_state, available_end=24, knowledge_engine=engine)
 
         print(f"Task {task.id}: {task.name}")
         print(
@@ -38,7 +46,21 @@ def run_demo():
         print("  Derived Facts (Forward Chaining):")
         for f in sorted(derived, key=lambda x: str(x)):
             print(f"    - {f}")
+        print("  Heuristic Contribution:")
+        print(f"    - Base Urgency Pressure : {breakdown['urgency_pressure']:.2f}")
+        print(f"    - Knowledge Risk/Attention Pressure : +{breakdown['knowledge_pressure']:.2f}")
+        print(f"    - Task Total Heuristic : {breakdown['total']:.2f}")
         print()
+
+    # Overall State Heuristic
+    all_state = State(current_time, tasks, [], 0)
+    all_breakdown = get_heuristic_breakdown(all_state, available_end=24, knowledge_engine=engine)
+    print("--------------------------------------------------")
+    print(f"Composite Initial State Heuristic (Available End 24): {all_breakdown['total']:.2f}")
+    print(f"  - Workload Pressure  : {all_breakdown['workload_pressure']:.2f}")
+    print(f"  - Base Urgency       : {all_breakdown['urgency_pressure']:.2f}")
+    print(f"  - Knowledge Pressure : +{all_breakdown['knowledge_pressure']:.2f}")
+    print("==================================================\n")
 
 
 class TestKnowledgeDemo(unittest.TestCase):

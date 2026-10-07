@@ -1,9 +1,10 @@
 import heapq
 
 from chronos.planning.heuristic import heuristic
+from chronos.knowledge import get_default_engine
 
 
-def astar(problem, available_end=None):
+def astar(problem, available_end=None, knowledge_engine=None):
     if available_end is not None:
         from chronos.planning.problem import PlanningProblem
         problem = PlanningProblem(
@@ -11,6 +12,12 @@ def astar(problem, available_end=None):
             planning_start=problem.current_time,
             available_end=available_end
         )
+
+    # Use default RuleEngine if not explicitly specified; pass False to disable
+    if knowledge_engine is None:
+        knowledge_engine = get_default_engine()
+    elif knowledge_engine is False:
+        knowledge_engine = None
 
     frontier = []
     counter = 0
@@ -23,7 +30,7 @@ def astar(problem, available_end=None):
     initial_key = initial_state.key()
     best_cost[initial_key] = initial_state.cost
 
-    initial_h = heuristic(initial_state, available_end)
+    initial_h = heuristic(initial_state, available_end, knowledge_engine=knowledge_engine)
 
     heapq.heappush(
         frontier,
@@ -52,7 +59,7 @@ def astar(problem, available_end=None):
                 best_cost[succ_key] = g
                 counter += 1
 
-                h = heuristic(successor, available_end)
+                h = heuristic(successor, available_end, knowledge_engine=knowledge_engine)
                 f = g + h
 
                 heapq.heappush(

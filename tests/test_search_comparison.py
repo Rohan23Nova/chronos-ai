@@ -157,6 +157,33 @@ class TestSearchComparison(unittest.TestCase):
         self.assertIsNone(astar_res)
         self.assertGreaterEqual(astar_exp, 1)
 
+    def test_astar_operates_with_knowledge_engine(self):
+        # A* operates with default knowledge engine and finds a valid solution
+        from chronos.knowledge import get_default_engine
+        engine = get_default_engine()
+        result, expanded = astar(self.problem, knowledge_engine=engine)
+
+        self.assertIsNotNone(result)
+        self.assertEqual(len(result.remaining_tasks), 0)
+        self.assertEqual(result.cost, 9)
+        self.assertGreater(expanded, 0)
+
+        # A* can also operate with knowledge engine disabled (backward compatibility)
+        result_no_k, expanded_no_k = astar(self.problem, knowledge_engine=False)
+        self.assertIsNotNone(result_no_k)
+        self.assertEqual(result_no_k.cost, 9)
+
+    def test_ucs_remains_independent_of_heuristic(self):
+        # UCS only prioritizes g(n) accumulated cost and does not require or use heuristic
+        ucs_result, ucs_expanded = ucs(self.problem)
+        self.assertIsNotNone(ucs_result)
+        self.assertEqual(ucs_result.cost, 9)
+        # Verify UCS function signature does not accept knowledge_engine parameter
+        import inspect
+        sig = inspect.signature(ucs)
+        self.assertNotIn("knowledge_engine", sig.parameters)
+
 
 if __name__ == "__main__":
     unittest.main()
+

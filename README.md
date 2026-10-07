@@ -52,6 +52,7 @@ Chronos AI is being developed around:
 - [x] Domain-specific heuristic
 - [x] Search comparison and state expansion measurement
 - [x] Rule-based knowledge system
+- [x] Knowledge-aware heuristic integration
 
 ### In Progress
 
@@ -65,6 +66,27 @@ Chronos AI is being developed around:
 - [ ] SQLite persistence
 - [ ] Streamlit interface
 - [ ] Experiments and evaluation
+
+## Integrated Planning Architecture
+
+Chronos couples symbolic domain knowledge with state-space search:
+
+```text
+Knowledge Representation
+        ↓
+Rule-Based Inference (Forward Chaining)
+        ↓
+Knowledge-Aware Heuristic
+        ↓
+A* Search
+        ↓
+Constraint-Valid Schedule
+```
+
+- **Domain Rules**: Derive symbolic properties for pending tasks (`urgency`, `risk`, `deadline_pressure`, `attention`).
+- **Knowledge-Aware Heuristic**: Consumes derived task properties alongside workload and deadline pressures to guide A* towards promising scheduling choices. Note that this domain-specific heuristic is designed for guidance and is not claimed to be admissible, nor is A* guaranteed optimal under this heuristic.
+- **Mandatory Hard Constraints**: Planning window limits and task deadlines strictly prune infeasible successors during search.
+- **Heuristic-Free Baseline**: Uniform Cost Search (UCS) operates solely on path cost $g(n)$, providing a benchmark to evaluate heuristic effects.
 
 ## Knowledge Representation & Reasoning
 
