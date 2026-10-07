@@ -3,7 +3,10 @@ from chronos.models.schedule import ScheduleEntry
 from chronos.planning.problem import task_cost
 from chronos.constraints.checker import is_feasible
 
-def generate_successors(state, available_end):
+def generate_successors(state, available_end, planning_start=None):
+    if planning_start is None:
+        planning_start = state.current_time
+
     successors = []
 
     for task in state.remaining_tasks:
@@ -27,7 +30,7 @@ def generate_successors(state, available_end):
             task_cost_value = task_cost(
                 task,
                 state.current_time,
-                18
+                planning_start
             )
             
             new_state = State(

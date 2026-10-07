@@ -1,15 +1,23 @@
 import heapq
 
-from chronos.planning.problem import is_goal
-from chronos.planning.successor import generate_successors
 from chronos.planning.heuristic import heuristic
 
 
-def astar(initial_state, available_end):
+def astar(problem, available_end=None):
+    if available_end is not None:
+        from chronos.planning.problem import PlanningProblem
+        problem = PlanningProblem(
+            initial_state=problem,
+            planning_start=problem.current_time,
+            available_end=available_end
+        )
 
     frontier = []
     counter = 0
     expanded = 0
+
+    initial_state = problem.initial_state
+    available_end = problem.available_end
 
     initial_h = heuristic(initial_state, available_end)
 
@@ -24,13 +32,10 @@ def astar(initial_state, available_end):
 
         expanded += 1
 
-        if is_goal(current):
+        if problem.is_goal(current):
             return current, expanded
 
-        for successor in generate_successors(
-            current,
-            available_end
-        ):
+        for successor in problem.get_successors(current):
 
             counter += 1
 
