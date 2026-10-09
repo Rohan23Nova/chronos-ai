@@ -54,6 +54,24 @@ class TestStreamlitApp(unittest.TestCase):
             at.run(timeout=10)
             self.assertEqual(len(at.exception), 0, f"Error navigating to {section}")
 
+    def test_app_theme_switching(self):
+        if not STREAMLIT_AVAILABLE:
+            self.skipTest("Streamlit not installed in this Python environment.")
+
+        app_path = os.path.join(os.path.dirname(__file__), "..", "app.py")
+        at = AppTest.from_file(app_path)
+        at.run(timeout=10)
+        self.assertEqual(len(at.exception), 0)
+
+        if hasattr(at.sidebar, "segmented_control") and len(at.sidebar.segmented_control) > 0:
+            at.sidebar.segmented_control[0].set_value("☀️ Light")
+            at.run(timeout=10)
+            self.assertEqual(len(at.exception), 0)
+
+            at.sidebar.segmented_control[0].set_value("🌙 Dark")
+            at.run(timeout=10)
+            self.assertEqual(len(at.exception), 0)
+
     def test_full_workflow_lifecycle(self):
         """
         Verify the 18-step workflow specified in Phase 22:

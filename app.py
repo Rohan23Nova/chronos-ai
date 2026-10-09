@@ -1,8 +1,10 @@
 """
 Chronos AI - Streamlit Web Application
 An Intelligent Personal Planning Agent presentation layer backed by
-heuristic search, symbolic knowledge reasoning, explainable AI,
+state-space search, symbolic knowledge reasoning, explainable AI,
 feedback-based adaptation, and SQLite persistent storage.
+
+Redesigned with Linear-inspired minimalism, Notion clarity, and dual light/dark themes.
 """
 
 import os
@@ -27,6 +29,15 @@ from chronos.ui.helpers import (
     format_feedback_rows,
 )
 from chronos.adaptation.feedback import FeedbackRecord
+from chronos.ui.theme import get_theme, ALGORITHM_COLORS
+from chronos.ui.styles import get_theme_css
+from chronos.ui.components import (
+    render_header,
+    render_badge,
+    render_empty_state,
+    render_timeline_slot,
+    render_card,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -38,43 +49,6 @@ st.set_page_config(
     page_icon="⏱️",
     layout="wide",
     initial_sidebar_state="expanded",
-)
-
-# Custom CSS for polished desktop layout
-st.markdown(
-    """
-    <style>
-    .main-title {
-        font-size: 2.2rem;
-        font-weight: 700;
-        margin-bottom: 0.2rem;
-        color: #1E293B;
-    }
-    .subtitle {
-        font-size: 1.05rem;
-        color: #64748B;
-        margin-bottom: 1.5rem;
-    }
-    .metric-card {
-        background-color: #F8FAFC;
-        border: 1px solid #E2E8F0;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .badge {
-        display: inline-block;
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border-radius: 4px;
-        background-color: #E2E8F0;
-        color: #334155;
-        margin-right: 0.4rem;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
 )
 
 
@@ -99,26 +73,54 @@ if "latest_plan" not in st.session_state:
 if "feedback_task_id" not in st.session_state:
     st.session_state["feedback_task_id"] = None
 
+if "theme_mode" not in st.session_state:
+    st.session_state["theme_mode"] = "Dark"
+
 
 # ---------------------------------------------------------------------------
-# Sidebar Navigation
+# Sidebar & Theme Configuration
 # ---------------------------------------------------------------------------
 
-st.sidebar.title("⏱️ Chronos AI")
-st.sidebar.caption("Intelligent Personal Planning Agent")
+# Theme Switcher (using segmented control to keep radio[0] as navigation anchor)
+theme_selection = st.sidebar.segmented_control(
+    "Theme Mode",
+    options=["🌙 Dark", "☀️ Light"],
+    default="🌙 Dark" if st.session_state["theme_mode"] == "Dark" else "☀️ Light",
+    label_visibility="collapsed",
+)
 
+active_theme = "Light" if theme_selection == "☀️ Light" else "Dark"
+st.session_state["theme_mode"] = active_theme
+
+# Inject Theme CSS Styles
+st.markdown(get_theme_css(active_theme), unsafe_allow_html=True)
+
+# Sidebar Header & Branding
 st.sidebar.markdown(
     """
-    <div style='margin-bottom: 1rem;'>
-        <span class='badge'>A* & UCS</span>
-        <span class='badge'>Knowledge Rules</span>
-        <span class='badge'>Explainable AI</span>
-        <span class='badge'>Adaptive</span>
+    <div style='margin-bottom: 0.5rem;'>
+        <div style='font-size: 1.35rem; font-weight: 750; letter-spacing: -0.02em;'>⏱️ Chronos AI</div>
+        <div style='font-size: 0.82rem; color: var(--chronos-text-secondary); margin-top: -2px;'>Intelligent Planning Agent</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
+# Architectural Badges
+st.sidebar.markdown(
+    """
+    <div style='margin-bottom: 1.1rem; line-height: 1.8;'>
+        <span class='chronos-brand-pill'>A* & UCS</span>
+        <span class='chronos-brand-pill'>Knowledge Rules</span>
+        <span class='chronos-brand-pill'>Explainable AI</span>
+        <span class='chronos-brand-pill'>Adaptive</span>
+        <span class='chronos-brand-pill'>SQLite</span>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+# Primary Navigation (Preserved as sidebar radio[0] for test compatibility)
 nav_selection = st.sidebar.radio(
     "Navigation",
     options=[
@@ -133,17 +135,20 @@ nav_selection = st.sidebar.radio(
     index=0,
 )
 
-st.sidebar.divider()
+st.sidebar.markdown("---")
 st.sidebar.markdown(
     """
-    **Academic AI Architecture**
-    - State-space planning
-    - A* search with heuristics
-    - Symbolic forward-chaining rules
-    - Hard temporal constraints
-    - Interpretable feedback adaptation
-    - SQLite persistence
-    """
+    <div style='font-size: 0.8rem; color: var(--chronos-text-secondary); line-height: 1.5;'>
+        <div style='font-weight: 650; color: var(--chronos-text-primary); margin-bottom: 0.3rem;'>AI Architecture</div>
+        • State-space graph search<br/>
+        • Knowledge-guided heuristic<br/>
+        • Forward-chaining rules<br/>
+        • Hard temporal constraints<br/>
+        • Deterministic adaptation<br/>
+        • Persistent SQLite storage
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 
@@ -152,51 +157,67 @@ st.sidebar.markdown(
 # ---------------------------------------------------------------------------
 
 if nav_selection == "Dashboard":
-    st.markdown("<div class='main-title'>System Dashboard</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Real-time summary of stored tasks, generated schedules, and planning activity.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="System Dashboard",
+        subtitle="Real-time summary of stored tasks, generated schedules, and planning activity.",
+        badges=[
+            ("State-Space Planner", "primary"),
+            ("Knowledge Engine", "cyan"),
+            ("Persistent Storage", "success"),
+        ],
     )
 
     tasks = db.get_all_tasks()
     history = db.get_planning_history()
     all_feedback = db.get_all_feedback()
+    successful_runs = sum(1 for r in history if r["success"])
 
-    col1, col2, col3, col4 = st.columns(4)
-    with col1:
-        st.metric("Stored Tasks", len(tasks))
-    with col2:
-        st.metric("Planning Runs", len(history))
-    with col3:
-        successful_runs = sum(1 for r in history if r["success"])
-        st.metric("Schedules Found", successful_runs)
-    with col4:
-        st.metric("Feedback Records", len(all_feedback))
+    # High-level Metrics Row
+    mcol1, mcol2, mcol3, mcol4 = st.columns(4)
+    with mcol1:
+        st.metric("Stored Tasks", len(tasks), help="Total active tasks stored in SQLite database")
+    with mcol2:
+        st.metric("Planning Runs", len(history), help="Historical search executions")
+    with mcol3:
+        st.metric("Schedules Found", successful_runs, help="Feasible schedules successfully computed")
+    with mcol4:
+        st.metric("Feedback Records", len(all_feedback), help="User feedback events recorded for adaptation")
 
     st.markdown("---")
 
     if not history:
-        st.info(
-            "👋 **Welcome to Chronos AI!**\n\n"
-            "No planning runs recorded yet. Get started by:\n"
-            "1. Visiting **Tasks** to manage your task catalogue.\n"
-            "2. Running **Plan Schedule** to compute an optimal schedule with A* search.\n"
-            "3. Inspecting the reasoning in **Explainability**."
+        render_empty_state(
+            icon="⏱️",
+            title="Welcome to Chronos AI",
+            description=(
+                "No planning runs recorded yet. Start by populating your task catalogue, "
+                "then run the search engine to compute an optimal schedule."
+            ),
+            action_hint="Navigate to Tasks in the sidebar to add or seed benchmark tasks.",
         )
     else:
-        st.subheader("Latest Planning Run")
         latest = history[0]
+        status_label = "SOLVED" if latest["success"] else "INFEASIBLE"
+        status_badge_type = "success" if latest["success"] else "danger"
 
-        mcol1, mcol2, mcol3, mcol4, mcol5 = st.columns(5)
-        with mcol1:
+        st.subheader("Latest Planning Run")
+
+        lcol1, lcol2, lcol3, lcol4, lcol5 = st.columns(5)
+        with lcol1:
             st.metric("Algorithm", latest["algorithm"])
-        with mcol2:
-            st.metric("Status", "Solved" if latest["success"] else "Infeasible")
-        with mcol3:
-            st.metric("Final Cost", f"{latest['total_cost']:.1f}" if latest["total_cost"] is not None else "N/A")
-        with mcol4:
-            st.metric("States Expanded", latest["states_expanded"] if latest["states_expanded"] is not None else 0)
-        with mcol5:
+        with lcol2:
+            st.metric("Search Status", status_label)
+        with lcol3:
+            st.metric(
+                "Final Waiting Cost",
+                f"{latest['total_cost']:.1f}" if latest["total_cost"] is not None else "N/A",
+            )
+        with lcol4:
+            st.metric(
+                "States Expanded",
+                latest["states_expanded"] if latest["states_expanded"] is not None else 0,
+            )
+        with lcol5:
             st.metric("Run ID", f"#{latest['id']}")
 
         st.caption(f"Executed at: {latest['created_at']}")
@@ -206,6 +227,20 @@ if nav_selection == "Dashboard":
             if sched_data and sched_data["entries"]:
                 st.markdown("#### Latest Generated Schedule")
                 task_map = {t.id: t for t in tasks}
+
+                # Visual Timeline Preview
+                for entry in sched_data["entries"]:
+                    t = task_map.get(entry.task_id)
+                    render_timeline_slot(
+                        start_time=entry.start_time,
+                        end_time=entry.end_time,
+                        task_name=t.name if t else f"Task #{entry.task_id}",
+                        priority=t.priority if t else "medium",
+                        difficulty=t.difficulty if t else "medium",
+                        deadline=t.deadline if t else None,
+                    )
+
+                # Tabular Details
                 sched_rows = []
                 for idx, entry in enumerate(sched_data["entries"], start=1):
                     t = task_map.get(entry.task_id)
@@ -213,13 +248,14 @@ if nav_selection == "Dashboard":
                         "Order": idx,
                         "Task ID": entry.task_id,
                         "Task Name": t.name if t else f"Task #{entry.task_id}",
-                        "Start Time": entry.start_time,
-                        "End Time": entry.end_time,
-                        "Duration": entry.end_time - entry.start_time,
+                        "Start Time": f"{entry.start_time:02d}:00",
+                        "End Time": f"{entry.end_time:02d}:00",
+                        "Duration": f"{entry.end_time - entry.start_time}h",
                         "Priority": t.priority.capitalize() if t else "-",
-                        "Deadline": t.deadline if t else "-",
+                        "Deadline": f"Slot {t.deadline}" if t else "-",
                     })
-                st.dataframe(pd.DataFrame(sched_rows), use_container_width=True, hide_index=True)
+                with st.expander("View Tabular Schedule Data", expanded=False):
+                    st.dataframe(pd.DataFrame(sched_rows), width="stretch", hide_index=True)
 
 
 # ---------------------------------------------------------------------------
@@ -227,10 +263,13 @@ if nav_selection == "Dashboard":
 # ---------------------------------------------------------------------------
 
 elif nav_selection == "Tasks":
-    st.markdown("<div class='main-title'>Task Management</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Manage stored tasks, attributes, deadlines, and priorities for the planning agent.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="Task Management",
+        subtitle="Manage stored tasks, durations, deadlines, and priorities for the planning agent.",
+        badges=[
+            ("SQLite Persisted", "success"),
+            ("Hard Constraints", "warning"),
+        ],
     )
 
     tasks = db.get_all_tasks()
@@ -239,9 +278,9 @@ elif nav_selection == "Tasks":
     tab_catalogue, tab_add = st.tabs(["📋 Task Catalogue", "➕ Add New Task"])
 
     with tab_catalogue:
-        col_hdr, col_seed = st.columns([4, 1])
+        col_hdr, col_seed = st.columns([3.5, 1.5])
         with col_hdr:
-            st.subheader(f"Stored Tasks ({len(tasks)})")
+            st.subheader(f"Stored Tasks Catalogue ({len(tasks)})")
         with col_seed:
             if st.button("🌱 Seed Canonical Tasks", help="Populate canonical benchmark tasks (DSA, AI, DBMS)"):
                 canonical_tasks = [
@@ -257,16 +296,16 @@ elif nav_selection == "Tasks":
 
         if tasks:
             task_df = pd.DataFrame(format_task_rows(tasks))
-            st.dataframe(task_df, use_container_width=True, hide_index=True)
+            st.dataframe(task_df, width="stretch", hide_index=True)
 
-            st.divider()
+            st.markdown("---")
             st.subheader("Delete Task")
-            del_col1, del_col2 = st.columns([3, 1])
+            del_col1, del_col2 = st.columns([3.5, 1.5])
             with del_col1:
                 task_to_delete = st.selectbox(
                     "Select task to remove",
                     options=tasks,
-                    format_func=lambda t: f"#{t.id} - {t.name} (Duration: {t.duration}, Deadline: {t.deadline})",
+                    format_func=lambda t: f"#{t.id} - {t.name} (Duration: {t.duration}h, Deadline: Slot {t.deadline})",
                 )
             with del_col2:
                 st.write("")
@@ -277,7 +316,12 @@ elif nav_selection == "Tasks":
                         st.success(f"Task #{task_to_delete.id} ('{task_to_delete.name}') deleted.")
                         st.rerun()
         else:
-            st.info("No tasks found in the database. Use the **Add New Task** tab or click **Seed Canonical Tasks**.")
+            render_empty_state(
+                icon="📋",
+                title="No Tasks Found",
+                description="The task database is currently empty. Add tasks manually or click 'Seed Canonical Tasks' above.",
+                action_hint="Seed the canonical 3 tasks to immediately reproduce benchmark experiments.",
+            )
 
     with tab_add:
         st.subheader("Add a New Task")
@@ -330,10 +374,14 @@ elif nav_selection == "Tasks":
 # ---------------------------------------------------------------------------
 
 elif nav_selection == "Plan Schedule":
-    st.markdown("<div class='main-title'>Plan Schedule</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Configure planning parameters and solve using heuristic or uninformed search algorithms.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="Plan Schedule",
+        subtitle="Configure planning horizon and solve state-space scheduling using search algorithms.",
+        badges=[
+            ("A* & UCS", "primary"),
+            ("Zero Hallucination", "cyan"),
+            ("Deterministic", "success"),
+        ],
     )
 
     tasks = db.get_all_tasks()
@@ -349,7 +397,7 @@ elif nav_selection == "Plan Schedule":
                 "Select Tasks to Schedule",
                 options=tasks,
                 default=tasks,
-                format_func=lambda t: f"#{t.id} {t.name} (Dur: {t.duration}, Pri: {t.priority}, Ddl: {t.deadline})",
+                format_func=lambda t: f"#{t.id} {t.name} (Dur: {t.duration}h, Pri: {t.priority}, Ddl: {t.deadline})",
             )
         with cfg_col2:
             planning_start = st.number_input("Planning Start", min_value=0, max_value=200, value=18, step=1)
@@ -367,6 +415,11 @@ elif nav_selection == "Plan Schedule":
             st.info(
                 "💡 **A* Search**: Guided by the knowledge-aware heuristic, evaluating deadline pressure, "
                 "risk, and learned user feedback adjustments from persistent storage."
+            )
+        elif algorithm == "UCS":
+            st.info(
+                "⚙️ **Uniform Cost Search (UCS)**: Explores state space strictly ordered by accumulated "
+                "waiting cost g(n) without heuristic guidance."
             )
 
         plan_button = st.button("🚀 Generate Schedule", type="primary")
@@ -422,27 +475,25 @@ elif nav_selection == "Plan Schedule":
                 with m4:
                     st.metric("Tasks Scheduled", len(active_plan["result_state"].schedule))
 
-                st.subheader("Generated Schedule")
-                sched_rows = format_schedule_rows(active_plan["result_state"], tasks)
-                st.dataframe(pd.DataFrame(sched_rows), use_container_width=True, hide_index=True)
-
-                # Visual Timeline Blocks
+                # Visual Timeline
                 st.subheader("Schedule Timeline")
-                timeline_cols = st.columns(len(sched_rows))
-                for idx, (col, row) in enumerate(zip(timeline_cols, sched_rows)):
-                    with col:
-                        st.markdown(
-                            f"""
-                            <div style='background: #EFF6FF; border: 2px solid #3B82F6; border-radius: 8px; padding: 12px; text-align: center;'>
-                                <div style='font-size: 0.85rem; color: #1D4ED8; font-weight: 600;'>Slot {row['Start']}:00 – {row['End']}:00</div>
-                                <div style='font-size: 1.15rem; font-weight: 700; margin: 4px 0;'>{row['Name']}</div>
-                                <div style='font-size: 0.8rem; color: #475569;'>Duration: {row['Duration']}h | Prio: {row['Priority']}</div>
-                            </div>
-                            """,
-                            unsafe_allow_html=True,
-                        )
+                task_map = {t.id: t for t in tasks}
+                for entry in active_plan["result_state"].schedule:
+                    t = task_map.get(entry.task_id)
+                    render_timeline_slot(
+                        start_time=entry.start_time,
+                        end_time=entry.end_time,
+                        task_name=t.name if t else f"Task #{entry.task_id}",
+                        priority=t.priority if t else "medium",
+                        difficulty=t.difficulty if t else "medium",
+                        deadline=t.deadline if t else None,
+                    )
 
-                st.info("🔎 Navigate to the **Explainability** section to inspect why tasks were scheduled in this order.")
+                st.subheader("Tabular Schedule")
+                sched_rows = format_schedule_rows(active_plan["result_state"], tasks)
+                st.dataframe(pd.DataFrame(sched_rows), width="stretch", hide_index=True)
+
+                st.info("🔎 Inspect why tasks were scheduled in this exact order in the **Explainability** section.")
 
             else:
                 st.error(
@@ -458,10 +509,14 @@ elif nav_selection == "Plan Schedule":
 # ---------------------------------------------------------------------------
 
 elif nav_selection == "Feedback":
-    st.markdown("<div class='main-title'>Adaptive Feedback & Learning</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Deterministic preference adaptation from user feedback without neural networks or LLMs.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="Adaptive Feedback & Learning",
+        subtitle="Deterministic preference adaptation from user feedback without neural networks or LLMs.",
+        badges=[
+            ("Interpretable", "primary"),
+            ("Bounded [-2, +2]", "cyan"),
+            ("Deterministic", "success"),
+        ],
     )
 
     tasks = db.get_all_tasks()
@@ -486,7 +541,7 @@ elif nav_selection == "Feedback":
                     selected_task = st.selectbox(
                         "Task",
                         options=tasks,
-                        format_func=lambda t: f"#{t.id} - {t.name} (Duration: {t.duration}, Priority: {t.priority})",
+                        format_func=lambda t: f"#{t.id} - {t.name} (Duration: {t.duration}h, Priority: {t.priority})",
                     )
                     feedback_label = st.selectbox(
                         "Feedback Type",
@@ -552,15 +607,19 @@ elif nav_selection == "Feedback":
                 "Schedule Unacceptable": profile.schedule_unacceptable_count,
             }
             count_df = pd.DataFrame([{"Event": k, "Count": v} for k, v in f_counts.items()])
-            st.dataframe(count_df, use_container_width=True, hide_index=True)
+            st.dataframe(count_df, width="stretch", hide_index=True)
 
         with tab_history:
             st.subheader(f"Stored Feedback Records ({len(all_feedback)})")
             if all_feedback:
                 fb_df = pd.DataFrame(format_feedback_rows(all_feedback, tasks))
-                st.dataframe(fb_df, use_container_width=True, hide_index=True)
+                st.dataframe(fb_df, width="stretch", hide_index=True)
             else:
-                st.info("No feedback records saved yet.")
+                render_empty_state(
+                    icon="📜",
+                    title="No Feedback Saved",
+                    description="No user feedback entries exist in the database. Use 'Record Feedback' to log execution outcomes.",
+                )
 
 
 # ---------------------------------------------------------------------------
@@ -568,10 +627,13 @@ elif nav_selection == "Feedback":
 # ---------------------------------------------------------------------------
 
 elif nav_selection == "Planning History":
-    st.markdown("<div class='main-title'>Planning History</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Audit log of past planning runs, algorithm selections, costs, and state expansions.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="Planning History",
+        subtitle="Audit log of past planning runs, algorithm selections, costs, and state expansions.",
+        badges=[
+            ("Audit Trail", "neutral"),
+            ("SQLite Persisted", "success"),
+        ],
     )
 
     history = db.get_planning_history()
@@ -579,7 +641,11 @@ elif nav_selection == "Planning History":
     task_map = {t.id: t.name for t in tasks}
 
     if not history:
-        st.info("No planning runs stored in the database yet. Generate a schedule in **Plan Schedule** to log a run.")
+        render_empty_state(
+            icon="📜",
+            title="No Planning History",
+            description="No planning runs stored in the database yet. Generate a schedule in 'Plan Schedule' to log a run.",
+        )
     else:
         st.subheader(f"Historical Runs ({len(history)})")
         hist_rows = []
@@ -593,9 +659,9 @@ elif nav_selection == "Planning History":
                 "States Expanded": r["states_expanded"],
                 "Schedule ID": r["schedule_id"] if r["schedule_id"] else "-",
             })
-        st.dataframe(pd.DataFrame(hist_rows), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame(hist_rows), width="stretch", hide_index=True)
 
-        st.divider()
+        st.markdown("---")
         st.subheader("Inspect Historical Schedule")
         runs_with_sched = [r for r in history if r["schedule_id"]]
         if runs_with_sched:
@@ -622,11 +688,11 @@ elif nav_selection == "Planning History":
                             "Order": idx,
                             "Task ID": entry.task_id,
                             "Task Name": task_map.get(entry.task_id, f"Task #{entry.task_id}"),
-                            "Start Time": entry.start_time,
-                            "End Time": entry.end_time,
-                            "Duration": entry.end_time - entry.start_time,
+                            "Start Time": f"{entry.start_time:02d}:00",
+                            "End Time": f"{entry.end_time:02d}:00",
+                            "Duration": f"{entry.end_time - entry.start_time}h",
                         })
-                    st.dataframe(pd.DataFrame(entries_rows), use_container_width=True, hide_index=True)
+                    st.dataframe(pd.DataFrame(entries_rows), width="stretch", hide_index=True)
         else:
             st.info("No successful schedules with saved entries.")
 
@@ -636,18 +702,23 @@ elif nav_selection == "Planning History":
 # ---------------------------------------------------------------------------
 
 elif nav_selection == "Explainability":
-    st.markdown("<div class='main-title'>Explainable AI (XAI) & Plan Inspection</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Inspect verified explanations of task orderings, constraint checks, derived facts, and pruning.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="Explainable AI (XAI) & Plan Inspection",
+        subtitle="Inspect verified explanations of task orderings, constraint checks, derived facts, and pruning.",
+        badges=[
+            ("XAI Core", "primary"),
+            ("Rule-Grounded", "cyan"),
+            ("Constraint-Audited", "success"),
+        ],
     )
 
     active_plan = st.session_state.get("latest_plan")
 
     if active_plan is None:
-        st.info(
-            "ℹ️ No active plan found in this session. Generate a schedule in **Plan Schedule** to view its explanation, "
-            "or load the canonical benchmark below."
+        render_empty_state(
+            icon="🔎",
+            title="No Active Plan to Explain",
+            description="Generate a schedule in 'Plan Schedule' to view its explanation, or load the canonical benchmark below.",
         )
 
         if st.button("🧪 Load Canonical 3-Task Explanation", type="secondary"):
@@ -678,11 +749,17 @@ elif nav_selection == "Explainability":
         with m1:
             st.metric("Algorithm", active_plan["algorithm"])
         with m2:
-            st.metric("Total Waiting Cost", f"{explanation.total_cost:.1f}" if explanation.total_cost != float("inf") else "∞")
+            st.metric(
+                "Total Waiting Cost",
+                f"{explanation.total_cost:.1f}" if explanation.total_cost != float("inf") else "∞",
+            )
         with m3:
             st.metric("Planning Window", f"[{explanation.planning_start}, {explanation.available_end}]")
         with m4:
-            st.metric("States Expanded", explanation.states_expanded if explanation.states_expanded is not None else 0)
+            st.metric(
+                "States Expanded",
+                explanation.states_expanded if explanation.states_expanded is not None else 0,
+            )
 
         st.markdown("---")
 
@@ -697,7 +774,10 @@ elif nav_selection == "Explainability":
             st.subheader("Task-Level Explanations")
             if explanation.task_explanations:
                 for te in explanation.task_explanations:
-                    with st.expander(f"**{te.task_name}** (#{te.task_id}) — Time: [{te.start_time}:00 – {te.end_time}:00]", expanded=True):
+                    with st.expander(
+                        f"**{te.task_name}** (#{te.task_id}) — Slot [{te.start_time}:00 – {te.end_time}:00]",
+                        expanded=True,
+                    ):
                         c1, c2, c3, c4 = st.columns(4)
                         with c1:
                             st.write(f"**Duration:** {te.duration}h")
@@ -714,7 +794,10 @@ elif nav_selection == "Explainability":
 
                         st.markdown("**Symbolic Derived Facts:**")
                         if te.derived_facts:
-                            fact_tags = " ".join([f"<span class='badge'>{f.predicate}={f.value}</span>" for f in te.derived_facts])
+                            fact_tags = " ".join([
+                                render_badge(f"{f.predicate}={f.value}", "cyan")
+                                for f in te.derived_facts
+                            ])
                             st.markdown(fact_tags, unsafe_allow_html=True)
                         else:
                             st.caption("None derived")
@@ -734,7 +817,9 @@ elif nav_selection == "Explainability":
             st.subheader("Pairwise Task Ordering Decisions")
             if explanation.ordering_explanations:
                 for oe in explanation.ordering_explanations:
-                    st.markdown(f"#### Why **{oe.preceding_task_name}** was scheduled before **{oe.following_task_name}**:")
+                    st.markdown(
+                        f"#### Why **{oe.preceding_task_name}** was scheduled before **{oe.following_task_name}**:"
+                    )
                     for r in oe.reasons:
                         st.markdown(f"- {r}")
             else:
@@ -756,7 +841,7 @@ elif nav_selection == "Explainability":
                         "Meets Deadline": "Yes" if rc.meets_deadline else "No",
                         "Reason": "; ".join(rc.reasons),
                     })
-                st.dataframe(pd.DataFrame(rej_rows), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(rej_rows), width="stretch", hide_index=True)
             else:
                 st.success("No candidate actions were pruned during this planning run.")
 
@@ -776,10 +861,14 @@ elif nav_selection == "Explainability":
 # ---------------------------------------------------------------------------
 
 elif nav_selection == "Evaluation":
-    st.markdown("<div class='main-title'>Evaluation & Benchmarks</div>", unsafe_allow_html=True)
-    st.markdown(
-        "<div class='subtitle'>Empirical evaluation of search algorithms, knowledge rules, feedback adaptation, constraints, and scaling.</div>",
-        unsafe_allow_html=True,
+    render_header(
+        title="Evaluation & Benchmarks",
+        subtitle="Empirical evaluation of search algorithms, knowledge rules, feedback adaptation, constraints, and scaling.",
+        badges=[
+            ("Reproducible", "primary"),
+            ("Scientific AI", "cyan"),
+            ("Admissibility Note", "warning"),
+        ],
     )
 
     results_file = os.path.join("evaluation", "results", "benchmark_results.json")
@@ -788,9 +877,11 @@ elif nav_selection == "Evaluation":
     col_btn, col_info = st.columns([1.5, 4])
     with col_btn:
         if st.button("⚡ Run / Refresh Benchmarks", type="primary"):
-            with st.spinner("Executing evaluation benchmarks..."):
+            with st.spinner("Executing evaluation benchmarks and generating theme plots..."):
                 from chronos.evaluation.experiments import run_all_experiments
-                run_all_experiments(save_results=True, generate_figures=True)
+                from chronos.evaluation.plots import generate_all_plots
+                all_results = run_all_experiments(save_results=True, generate_figures=True)
+                generate_all_plots(all_results, figures_dir=figures_dir, theme_mode=active_theme)
                 st.success("Benchmarks executed successfully!")
                 st.rerun()
 
@@ -806,7 +897,14 @@ elif nav_selection == "Evaluation":
         st.warning("No benchmark results found on disk. Click **Run / Refresh Benchmarks** above to generate them.")
     else:
         from chronos.evaluation.metrics import load_results_from_json
+        from chronos.evaluation.plots import generate_all_plots
+
         bench_results = load_results_from_json(results_file)
+
+        # Check for theme-specific figure; generate on demand if missing
+        theme_alg_plot = os.path.join(figures_dir, f"algorithm_comparison_{active_theme.lower()}.png")
+        if not os.path.exists(theme_alg_plot):
+            generate_all_plots(bench_results, figures_dir=figures_dir, theme_mode=active_theme)
 
         tab_alg, tab_kn, tab_adapt, tab_cons, tab_scale = st.tabs([
             "1️⃣ Algorithm Comparison",
@@ -821,47 +919,52 @@ elif nav_selection == "Evaluation":
             st.markdown("Comparing A*, UCS, BFS, and DFS on identical PlanningProblem scenarios.")
             alg_data = [r.to_dict() for r in bench_results if r.experiment_name == "algorithm_comparison"]
             if alg_data:
-                st.dataframe(pd.DataFrame(alg_data), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(alg_data), width="stretch", hide_index=True)
 
-            alg_plot = os.path.join(figures_dir, "algorithm_comparison.png")
+            alg_plot = (
+                theme_alg_plot
+                if os.path.exists(theme_alg_plot)
+                else os.path.join(figures_dir, "algorithm_comparison.png")
+            )
             if os.path.exists(alg_plot):
-                st.image(alg_plot, caption="States Expanded by Algorithm across Benchmark Scenarios")
+                st.image(alg_plot, caption=f"States Expanded by Algorithm across Scenarios ({active_theme} Theme)")
 
         with tab_kn:
             st.subheader("Experiment 2: Knowledge-Aware Heuristic Impact")
             st.markdown("Evaluating A* with symbolic domain rules enabled vs disabled.")
             kn_data = [r.to_dict() for r in bench_results if r.experiment_name == "knowledge_heuristic"]
             if kn_data:
-                st.dataframe(pd.DataFrame(kn_data), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(kn_data), width="stretch", hide_index=True)
 
         with tab_adapt:
             st.subheader("Experiment 3: Feedback-Based Adaptation")
             st.markdown("Comparing baseline A* with A* under learned user feedback adjustments.")
             adapt_data = [r.to_dict() for r in bench_results if r.experiment_name == "adaptation_experiment"]
             if adapt_data:
-                st.dataframe(pd.DataFrame(adapt_data), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(adapt_data), width="stretch", hide_index=True)
 
         with tab_cons:
             st.subheader("Experiment 4: Hard Constraint Enforcement")
             st.markdown("Validating candidate pruning and failure reporting on infeasible vs feasible problems.")
             cons_data = [r.to_dict() for r in bench_results if r.experiment_name == "constraint_handling"]
             if cons_data:
-                st.dataframe(pd.DataFrame(cons_data), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(cons_data), width="stretch", hide_index=True)
 
         with tab_scale:
             st.subheader("Experiment 5: Problem Scaling (3 to 8 Tasks)")
             st.markdown("Measuring state expansions and runtime as task count increases.")
             scale_data = [r.to_dict() for r in bench_results if r.experiment_name == "scaling_experiment"]
             if scale_data:
-                st.dataframe(pd.DataFrame(scale_data), use_container_width=True, hide_index=True)
+                st.dataframe(pd.DataFrame(scale_data), width="stretch", hide_index=True)
 
             sc_col1, sc_col2 = st.columns(2)
             with sc_col1:
-                p1 = os.path.join(figures_dir, "states_expanded_vs_tasks.png")
+                p1_theme = os.path.join(figures_dir, f"states_expanded_vs_tasks_{active_theme.lower()}.png")
+                p1 = p1_theme if os.path.exists(p1_theme) else os.path.join(figures_dir, "states_expanded_vs_tasks.png")
                 if os.path.exists(p1):
-                    st.image(p1, caption="States Expanded vs Task Count")
+                    st.image(p1, caption=f"States Expanded vs Task Count ({active_theme} Theme)")
             with sc_col2:
-                p2 = os.path.join(figures_dir, "runtime_vs_tasks.png")
+                p2_theme = os.path.join(figures_dir, f"runtime_vs_tasks_{active_theme.lower()}.png")
+                p2 = p2_theme if os.path.exists(p2_theme) else os.path.join(figures_dir, "runtime_vs_tasks.png")
                 if os.path.exists(p2):
-                    st.image(p2, caption="Runtime (ms) vs Task Count")
-
+                    st.image(p2, caption=f"Runtime (ms) vs Task Count ({active_theme} Theme)")

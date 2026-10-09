@@ -7,7 +7,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 8,
-    "runtime_ms": 0.682,
+    "runtime_ms": 0.449,
     "schedule_order": [
       3,
       1,
@@ -23,7 +23,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 8,
-    "runtime_ms": 0.031,
+    "runtime_ms": 0.027,
     "schedule_order": [
       3,
       1,
@@ -39,7 +39,7 @@
     "solution_found": true,
     "final_cost": 14,
     "states_expanded": 8,
-    "runtime_ms": 0.024,
+    "runtime_ms": 0.022,
     "schedule_order": [
       1,
       2,
@@ -55,7 +55,7 @@
     "solution_found": true,
     "final_cost": 14,
     "states_expanded": 4,
-    "runtime_ms": 0.012,
+    "runtime_ms": 0.01,
     "schedule_order": [
       3,
       2,
@@ -71,7 +71,7 @@
     "solution_found": true,
     "final_cost": 14,
     "states_expanded": 16,
-    "runtime_ms": 0.937,
+    "runtime_ms": 0.892,
     "schedule_order": [
       2,
       1,
@@ -88,7 +88,7 @@
     "solution_found": true,
     "final_cost": 14,
     "states_expanded": 16,
-    "runtime_ms": 0.052,
+    "runtime_ms": 0.054,
     "schedule_order": [
       2,
       1,
@@ -105,7 +105,7 @@
     "solution_found": true,
     "final_cost": 17,
     "states_expanded": 16,
-    "runtime_ms": 0.041,
+    "runtime_ms": 0.045,
     "schedule_order": [
       1,
       2,
@@ -139,7 +139,7 @@
     "solution_found": true,
     "final_cost": 34,
     "states_expanded": 64,
-    "runtime_ms": 4.898,
+    "runtime_ms": 4.62,
     "schedule_order": [
       2,
       1,
@@ -158,7 +158,7 @@
     "solution_found": true,
     "final_cost": 34,
     "states_expanded": 64,
-    "runtime_ms": 0.291,
+    "runtime_ms": 0.287,
     "schedule_order": [
       2,
       1,
@@ -177,7 +177,7 @@
     "solution_found": true,
     "final_cost": 37,
     "states_expanded": 64,
-    "runtime_ms": 0.24,
+    "runtime_ms": 0.287,
     "schedule_order": [
       1,
       2,
@@ -196,7 +196,7 @@
     "solution_found": true,
     "final_cost": 40,
     "states_expanded": 16,
-    "runtime_ms": 0.048,
+    "runtime_ms": 0.05,
     "schedule_order": [
       6,
       5,
@@ -215,7 +215,7 @@
     "solution_found": true,
     "final_cost": 84,
     "states_expanded": 256,
-    "runtime_ms": 23.8,
+    "runtime_ms": 23.309,
     "schedule_order": [
       2,
       6,
@@ -236,7 +236,7 @@
     "solution_found": true,
     "final_cost": 84,
     "states_expanded": 256,
-    "runtime_ms": 1.564,
+    "runtime_ms": 1.5,
     "schedule_order": [
       2,
       6,
@@ -257,7 +257,7 @@
     "solution_found": true,
     "final_cost": 87,
     "states_expanded": 256,
-    "runtime_ms": 1.27,
+    "runtime_ms": 1.227,
     "schedule_order": [
       1,
       2,
@@ -278,7 +278,7 @@
     "solution_found": true,
     "final_cost": 89,
     "states_expanded": 18,
-    "runtime_ms": 0.068,
+    "runtime_ms": 0.066,
     "schedule_order": [
       8,
       7,
@@ -299,7 +299,7 @@
     "solution_found": false,
     "final_cost": null,
     "states_expanded": 3,
-    "runtime_ms": 0.194,
+    "runtime_ms": 0.188,
     "schedule_order": null,
     "notes": "Window: [18, 22]"
   },
@@ -311,7 +311,7 @@
     "solution_found": false,
     "final_cost": null,
     "states_expanded": 3,
-    "runtime_ms": 0.007,
+    "runtime_ms": 0.006,
     "schedule_order": null,
     "notes": "Window: [18, 22]"
   },
@@ -335,7 +335,7 @@
     "solution_found": false,
     "final_cost": null,
     "states_expanded": 3,
-    "runtime_ms": 0.005,
+    "runtime_ms": 0.004,
     "schedule_order": null,
     "notes": "Window: [18, 22]"
   },
@@ -347,7 +347,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 8,
-    "runtime_ms": 0.297,
+    "runtime_ms": 0.291,
     "schedule_order": [
       3,
       1,
@@ -363,7 +363,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 8,
-    "runtime_ms": 0.029,
+    "runtime_ms": 0.028,
     "schedule_order": [
       3,
       1,
@@ -379,7 +379,7 @@
     "solution_found": true,
     "final_cost": 14,
     "states_expanded": 16,
-    "runtime_ms": 0.857,
+    "runtime_ms": 0.861,
     "schedule_order": [
       2,
       1,
@@ -396,7 +396,7 @@
     "solution_found": true,
     "final_cost": 14,
     "states_expanded": 16,
-    "runtime_ms": 0.062,
+    "runtime_ms": 0.059,
     "schedule_order": [
       2,
       1,
@@ -413,7 +413,7 @@
     "solution_found": true,
     "final_cost": 34,
     "states_expanded": 64,
-    "runtime_ms": 4.696,
+    "runtime_ms": 4.468,
     "schedule_order": [
       2,
       1,
@@ -432,7 +432,7 @@
     "solution_found": true,
     "final_cost": 34,
     "states_expanded": 64,
-    "runtime_ms": 0.349,
+    "runtime_ms": 0.32,
     "schedule_order": [
       2,
       1,
@@ -451,7 +451,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 8,
-    "runtime_ms": 0.316,
+    "runtime_ms": 0.295,
     "schedule_order": [
       3,
       1,
@@ -467,7 +467,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 9,
-    "runtime_ms": 0.344,
+    "runtime_ms": 0.352,
     "schedule_order": [
       3,
       1,
@@ -483,7 +483,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 8,
-    "runtime_ms": 0.32,
+    "runtime_ms": 0.361,
     "schedule_order": [
       3,
       1,
@@ -499,7 +499,7 @@
     "solution_found": false,
     "final_cost": null,
     "states_expanded": 3,
-    "runtime_ms": 0.207,
+    "runtime_ms": 0.258,
     "schedule_order": null,
     "notes": "Correctly pruned all paths (5 candidate rejections)"
   },
@@ -511,7 +511,7 @@
     "solution_found": true,
     "final_cost": 9,
     "states_expanded": 7,
-    "runtime_ms": 0.313,
+    "runtime_ms": 0.335,
     "schedule_order": [
       2,
       1,
@@ -527,7 +527,7 @@
     "solution_found": true,
     "final_cost": 19,
     "states_expanded": 16,
-    "runtime_ms": 0.825,
+    "runtime_ms": 0.789,
     "schedule_order": [
       2,
       1,
@@ -544,7 +544,7 @@
     "solution_found": true,
     "final_cost": 33,
     "states_expanded": 32,
-    "runtime_ms": 2.164,
+    "runtime_ms": 2.075,
     "schedule_order": [
       2,
       1,
@@ -562,7 +562,7 @@
     "solution_found": true,
     "final_cost": 42,
     "states_expanded": 64,
-    "runtime_ms": 5.058,
+    "runtime_ms": 5.014,
     "schedule_order": [
       2,
       1,
@@ -581,7 +581,7 @@
     "solution_found": true,
     "final_cost": 53,
     "states_expanded": 128,
-    "runtime_ms": 14.648,
+    "runtime_ms": 14.549,
     "schedule_order": [
       2,
       1,
@@ -601,7 +601,7 @@
     "solution_found": true,
     "final_cost": 66,
     "states_expanded": 256,
-    "runtime_ms": 37.848,
+    "runtime_ms": 37.073,
     "schedule_order": [
       2,
       1,
